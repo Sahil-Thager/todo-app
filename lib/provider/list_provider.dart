@@ -26,7 +26,6 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   void toggleItemSelection(int index) {
-    // TODO: Wrong implementation. Should follow immutable state pattern
     _todos[index].isDone = !_todos[index].isDone;
     notifyListeners();
   }

@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
+import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import '../constants/colors.dart';
 
@@ -24,6 +24,100 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.lightBlue,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "My TODO APP",
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 22),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.account_circle_rounded),
+                      ),
+                    ),
+                    Text(
+                      "User's Name",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                onTap: (() {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                    builder: (context) {
+                      return const Home();
+                    },
+                  ), ModalRoute.withName("sdadas"));
+                }),
+                leading: const Icon(
+                  Icons.home,
+                  color: Colors.black,
+                ),
+                title: const Text(
+                  "Home",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const ListTile(
+                leading: Icon(
+                  Icons.account_circle,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "User's account",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const ListTile(
+                leading: Icon(
+                  Icons.settings,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "Settings",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ListTile(
+                onTap: (() {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                    builder: (context) {
+                      return const LogInScreen();
+                    },
+                  ), ModalRoute.withName("sdadas"));
+                }),
+                leading: const Icon(
+                  Icons.logout_rounded,
+                  color: Colors.black,
+                ),
+                title: const Text(
+                  "LogOut",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
+          ),
+        ),
         backgroundColor: tdBGColor,
         appBar: _buildAppBar(),
         body: Padding(
@@ -32,7 +126,10 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                color: Colors.white,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                ),
                 height: 40,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -105,15 +202,12 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      iconTheme: const IconThemeData(color: Colors.black),
       backgroundColor: tdBGColor,
       elevation: 0,
-      title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Icon(
-          Icons.menu,
-          color: tdBlack,
-          size: 30,
-        ),
-        SizedBox(
+      title: Padding(
+        padding: const EdgeInsets.only(left: 240),
+        child: SizedBox(
           height: 40,
           width: 40,
           child: ClipRRect(
@@ -121,7 +215,7 @@ class _HomeState extends State<Home> {
             child: Image.asset('assets/sahil1.jpg'),
           ),
         ),
-      ]),
+      ),
     );
   }
 }
@@ -148,7 +242,8 @@ class _MyTileState extends State<MyTile> {
     super.initState();
 
     sss(() {
-      notificationServices.sendNotification("gdh", "hjgh");
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), "Only 10 Minutes Left");
     });
   }
 
@@ -231,50 +326,3 @@ class _MyTileState extends State<MyTile> {
     );
   }
 }
-
-// class TimeCounter extends StatefulWidget {
-//   const TimeCounter({
-//     super.key,
-//     required this.todo,
-//   });
-
-//   final ToDo todo;
-
-//   @override
-//   State<TimeCounter> createState() => _TimeCounterState();
-// }
-
-// Stream<DateTime> dateTimeStream(ToDo todo, VoidCallback callback) async* {
-//   var current = DateTime.now();
-
-//   while (current.isBefore(todo.date)) {
-//     final timeDifference = todo.date.difference(current);
-
-//     if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
-//       todo.triggerNotification = true;
-//       callback.call();
-//     }
-
-//     yield current;
-//     await Future.delayed(const Duration(seconds: 1));
-//     current = current.add(const Duration(seconds: 1));
-//   }
-// }
-
-// class _TimeCounterState extends State<TimeCounter> {
-//   NotificationServices notificationServices = NotificationServices();
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-
-//   @override
-//   void dispose() {
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return 
-//   }
-// }
