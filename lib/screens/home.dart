@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
@@ -29,24 +31,28 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: TextField(
-                  onChanged: context.read<ToDoProvider>().filter,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.all(0),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: tdBlack,
-                      size: 20,
+              Container(
+                color: Colors.white,
+                height: 40,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: TextField(
+                    onChanged: context.read<ToDoProvider>().filter,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.only(bottom: 10),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: tdBlack,
+                        size: 20,
+                      ),
+                      prefixIconConstraints: BoxConstraints(
+                        maxHeight: 20,
+                        minWidth: 25,
+                      ),
+                      border: InputBorder.none,
+                      hintText: 'Search',
+                      hintStyle: TextStyle(color: tdGrey),
                     ),
-                    prefixIconConstraints: BoxConstraints(
-                      maxHeight: 20,
-                      minWidth: 25,
-                    ),
-                    border: InputBorder.none,
-                    hintText: 'Search',
-                    hintStyle: TextStyle(color: tdGrey),
                   ),
                 ),
               ),
@@ -71,15 +77,12 @@ class _HomeState extends State<Home> {
                         ? const Center(child: Text('Make Todo'))
                         : ListView.builder(
                             itemCount: provider.filteredTodoList.length,
-                            itemBuilder: (context, myindex) {
+                            itemBuilder: (context, index) {
                               ToDo todo =
-                                  provider.filteredTodoList.elementAt(myindex);
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: MyTile(
-                                  todo: todo,
-                                  index: myindex,
-                                ),
+                                  provider.filteredTodoList.elementAt(index);
+                              return MyTile(
+                                todo: todo,
+                                index: index,
                               );
                             },
                           );
@@ -139,123 +142,139 @@ class MyTile extends StatefulWidget {
 
 class _MyTileState extends State<MyTile> {
   NotificationServices notificationServices = NotificationServices();
-  int selectedIndex = 0;
-
   @override
   void initState() {
     notificationServices.intialiseNotification();
-
     super.initState();
-    notificationServices.sendNotification("gfghfg ", "only 10 minutes left");
+
+    sss(() {
+      notificationServices.sendNotification("gdh", "hjgh");
+    });
+  }
+
+  void sss(VoidCallback callback) {
+    final todo = widget.todo;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+        callback.call();
+        timer.cancel();
+        todo.triggerNotification = true;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    int selectedIndex = 0;
     return Consumer<ToDoProvider>(
-      builder: ((context, provider, child) {
-        return ListTile(
-          onTap: () {
-            selectedIndex = widget.index;
+      builder: (context, provider, child) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            onTap: () {
+              selectedIndex = widget.index;
 
-            if (selectedIndex == widget.index) {
-              provider.toggleItemSelection(widget.index);
-            }
-          },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-          tileColor: Colors.white,
-          leading: Icon(
-            widget.todo.isDone
-                ? Icons.check_box
-                : Icons.check_box_outline_blank,
-            color: tdBlue,
-          ),
-          title: Text(
-            widget.todo.todoText ?? 'null',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              decoration:
-                  widget.todo.isDone ? TextDecoration.lineThrough : null,
+              if (selectedIndex == widget.index) {
+                provider.toggleItemSelection(widget.index);
+              }
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            tileColor: Colors.white,
+            leading: Icon(
+              widget.todo.isDone
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
+              color: tdBlue,
+            ),
+            title: Text(
+              widget.todo.todoText ?? 'null',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                decoration:
+                    widget.todo.isDone ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            trailing: Container(
+              padding: const EdgeInsets.all(0),
+              margin: const EdgeInsets.symmetric(
+                vertical: 12,
+              ),
+              height: 35,
+              width: 35,
+              decoration: BoxDecoration(
+                color: tdRed,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: IconButton(
+                color: Colors.white,
+                iconSize: 18,
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  selectedIndex = widget.index;
+                  if (selectedIndex == widget.index) {
+                    provider.deleteToDoItem(widget.index);
+                  }
+                },
+              ),
+            ),
+            subtitle: Text(widget.todo.date.toString()),
           ),
-          trailing: Container(
-            padding: const EdgeInsets.all(0),
-            margin: const EdgeInsets.symmetric(
-              vertical: 12,
-            ),
-            height: 35,
-            width: 35,
-            decoration: BoxDecoration(
-              color: tdRed,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: IconButton(
-              color: Colors.white,
-              iconSize: 18,
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                selectedIndex = widget.index;
-                if (selectedIndex == widget.index) {
-                  provider.deleteToDoItem(widget.index);
-                }
-              },
-            ),
-          ),
-          subtitle: TimeCounter(todo: widget.todo),
         );
-      }),
+      },
     );
   }
 }
 
-class TimeCounter extends StatefulWidget {
-  const TimeCounter({
-    super.key,
-    required this.todo,
-  });
+// class TimeCounter extends StatefulWidget {
+//   const TimeCounter({
+//     super.key,
+//     required this.todo,
+//   });
 
-  final ToDo todo;
+//   final ToDo todo;
 
-  @override
-  State<TimeCounter> createState() => _TimeCounterState();
-}
+//   @override
+//   State<TimeCounter> createState() => _TimeCounterState();
+// }
 
-Stream<DateTime> dateTimeStream(ToDo todo, VoidCallback callback) async* {
-  var current = DateTime.now();
+// Stream<DateTime> dateTimeStream(ToDo todo, VoidCallback callback) async* {
+//   var current = DateTime.now();
 
-  while (current.isBefore(todo.date)) {
-    final timeDifference = todo.date.difference(current);
+//   while (current.isBefore(todo.date)) {
+//     final timeDifference = todo.date.difference(current);
 
-    if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
-      todo.triggerNotification = true;
+//     if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+//       todo.triggerNotification = true;
+//       callback.call();
+//     }
 
-      callback.call();
-    }
+//     yield current;
+//     await Future.delayed(const Duration(seconds: 1));
+//     current = current.add(const Duration(seconds: 1));
+//   }
+// }
 
-    yield current;
-    await Future.delayed(const Duration(seconds: 1));
-    current = current.add(const Duration(seconds: 1));
-  }
-}
+// class _TimeCounterState extends State<TimeCounter> {
+//   NotificationServices notificationServices = NotificationServices();
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
 
-class _TimeCounterState extends State<TimeCounter> {
-  NotificationServices notificationServices = NotificationServices();
-  @override
-  void initState() {
-    super.initState();
-  }
+//   @override
+//   void dispose() {
+//     super.dispose();
+//   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(widget.todo.date.toString());
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return 
+//   }
+// }
