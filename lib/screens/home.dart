@@ -71,14 +71,14 @@ class _HomeState extends State<Home> {
                         ? const Center(child: Text('Make Todo'))
                         : ListView.builder(
                             itemCount: provider.filteredTodoList.length,
-                            itemBuilder: (context, index) {
+                            itemBuilder: (context, myindex) {
                               ToDo todo =
-                                  provider.filteredTodoList.elementAt(index);
+                                  provider.filteredTodoList.elementAt(myindex);
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: MyTile(
                                   todo: todo,
-                                  index: index,
+                                  index: myindex,
                                 ),
                               );
                             },
@@ -141,13 +141,12 @@ class _MyTileState extends State<MyTile> {
   NotificationServices notificationServices = NotificationServices();
   int selectedIndex = 0;
 
-  int get index => index;
-
   @override
   void initState() {
     notificationServices.intialiseNotification();
-    notificationServices.sendNotification("gfghfg ", "only 10 minutes left");
+
     super.initState();
+    notificationServices.sendNotification("gfghfg ", "only 10 minutes left");
   }
 
   @override
@@ -156,10 +155,10 @@ class _MyTileState extends State<MyTile> {
       builder: ((context, provider, child) {
         return ListTile(
           onTap: () {
-            selectedIndex = index;
+            selectedIndex = widget.index;
 
-            if (selectedIndex == index) {
-              provider.toggleItemSelection(index);
+            if (selectedIndex == widget.index) {
+              provider.toggleItemSelection(widget.index);
             }
           },
           shape: RoundedRectangleBorder(
@@ -199,9 +198,9 @@ class _MyTileState extends State<MyTile> {
               iconSize: 18,
               icon: const Icon(Icons.delete),
               onPressed: () {
-                selectedIndex = index;
-                if (selectedIndex == index) {
-                  provider.deleteToDoItem(index);
+                selectedIndex = widget.index;
+                if (selectedIndex == widget.index) {
+                  provider.deleteToDoItem(widget.index);
                 }
               },
             ),
