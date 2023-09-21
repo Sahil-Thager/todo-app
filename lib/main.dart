@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
+import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
-      home: const Home(),
+      home: const LogInScreen(),
       theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
     );
   }
