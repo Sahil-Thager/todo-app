@@ -27,6 +27,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
       home: const LogInScreen(),
+      // theme: ThemeData.dark(),
+      // darkTheme: ThemeData.dark(),
       theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
     );
   }
