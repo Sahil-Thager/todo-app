@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 
 class ToDoProvider extends ChangeNotifier {
@@ -49,27 +48,5 @@ class ToDoProvider extends ChangeNotifier {
   void setTimeAndDate(DateTime dateTime) {
     _selectedDateTime = dateTime;
     notifyListeners();
-  }
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  AndroidInitializationSettings androidInitializationSettings =
-      const AndroidInitializationSettings("logo");
-
-  void initializeNotifications() {
-    InitializationSettings initializationSettings =
-        InitializationSettings(android: androidInitializationSettings);
-
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
-
-  void sendNotifications(String title, String body) {
-    AndroidNotificationDetails androidNotificationDetails =
-        const AndroidNotificationDetails("channelId", "channelName",
-            importance: Importance.high, priority: Priority.high);
-    NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-    flutterLocalNotificationsPlugin.show(0, title, body, notificationDetails);
   }
 }

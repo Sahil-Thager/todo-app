@@ -27,15 +27,15 @@ class _HomeState extends State<Home> {
         drawer: Drawer(
           child: ListView(
             children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
+              DrawerHeader(
+                decoration: const BoxDecoration(
                   color: Colors.lightBlue,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "My TODO APP",
                       style: TextStyle(
                         fontSize: 30,
@@ -43,13 +43,18 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 22),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.account_circle_rounded),
+                      padding: const EdgeInsets.only(top: 22),
+                      child: InkWell(
+                        onTap: () {
+                          _showDialog(context);
+                        },
+                        child: const CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.account_circle_rounded),
+                        ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "User's Name",
                       style: TextStyle(
                         color: Colors.white,
@@ -218,6 +223,81 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+}
+
+Future<void> _showDialog(BuildContext context) async {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        return const SingleChildScrollView(
+          child: AlertDialog(
+            title: Text(
+              "User's Profile",
+              style: TextStyle(fontSize: 20, color: Colors.black),
+            ),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Text(
+                    "Name",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                Text(
+                  "Sahil Thager",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Text(
+                    "G-Mail",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                Text(
+                  "sahilthager@gmail.com",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Text(
+                    "Mobile",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                Text(
+                  "895623147",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      });
 }
 
 class MyTile extends StatefulWidget {
