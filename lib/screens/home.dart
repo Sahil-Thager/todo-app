@@ -27,15 +27,15 @@ class _HomeState extends State<Home> {
         drawer: Drawer(
           child: ListView(
             children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
+              const DrawerHeader(
+                decoration: BoxDecoration(
                   color: Colors.lightBlue,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "My TODO APP",
                       style: TextStyle(
                         fontSize: 30,
@@ -43,18 +43,13 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 22),
-                      child: InkWell(
-                        onTap: () {
-                          _showDialog(context);
-                        },
-                        child: const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.account_circle_rounded),
-                        ),
+                      padding: EdgeInsets.only(top: 22),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.account_circle_rounded),
                       ),
                     ),
-                    const Text(
+                    Text(
                       "User's Name",
                       style: TextStyle(
                         color: Colors.white,
@@ -215,9 +210,14 @@ class _HomeState extends State<Home> {
         child: SizedBox(
           height: 40,
           width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset('assets/sahil1.jpg'),
+          child: InkWell(
+            onTap: () {
+              _showDialog(context);
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset('assets/sahil1.jpg'),
+            ),
           ),
         ),
       ),
@@ -316,14 +316,19 @@ class MyTile extends StatefulWidget {
 
 class _MyTileState extends State<MyTile> {
   NotificationServices notificationServices = NotificationServices();
+
   @override
   void initState() {
     notificationServices.intialiseNotification();
     super.initState();
 
     sss(() {
+      notificationServices.sendNotification(widget.todo.todoText.toString(),
+          "Only 10 minutes are left to complete your task");
+    });
+    ss(() {
       notificationServices.sendNotification(
-          widget.todo.todoText.toString(), "Only 10 Minutes Left");
+          widget.todo.todoText.toString(), "One day Left for your task ");
     });
   }
 
@@ -333,6 +338,20 @@ class _MyTileState extends State<MyTile> {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
       if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+        callback.call();
+        timer.cancel();
+        todo.triggerNotification = true;
+      }
+    });
+  }
+
+  void ss(VoidCallback callback) {
+    final todo = widget.todo;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (timeDifference.inSeconds <= 86400 ||
+          timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
         callback.call();
         timer.cancel();
         todo.triggerNotification = true;

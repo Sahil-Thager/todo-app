@@ -71,16 +71,19 @@ class _LogInScreenState extends State<LogInScreen> {
                     hintStyle: const TextStyle(color: Colors.grey)),
               ),
             ),
-            ElevatedButton(
-                onPressed: () {
-                  if (_formkey.currentState!.validate()) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return const Home();
-                    }));
-                  }
-                },
-                child: const Text("Login"))
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+              child: ElevatedButton(
+                  onPressed: () {
+                    if (_formkey.currentState!.validate()) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const Home();
+                      }));
+                    }
+                  },
+                  child: const Text("Login")),
+            )
           ],
         ),
       ),
