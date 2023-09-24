@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
@@ -292,7 +293,7 @@ Future<void> _showDialog(BuildContext context) async {
                     fontSize: 15,
                     color: Colors.black,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -349,9 +350,7 @@ class _MyTileState extends State<MyTile> {
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (timeDifference.inSeconds <= 86400 ||
-          timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+      if (timeDifference.inSeconds <= 86400 && !todo.triggerNotification) {
         callback.call();
         timer.cancel();
         todo.triggerNotification = true;
