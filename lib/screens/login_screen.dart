@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
+import 'package:provider/provider.dart';
 
 class LogInScreen extends StatefulWidget {
   const LogInScreen({super.key});
@@ -16,10 +14,6 @@ class LogInScreen extends StatefulWidget {
 
 class _LogInScreenState extends State<LogInScreen> {
   final _formkey = GlobalKey<FormState>();
-
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,59 +33,45 @@ class _LogInScreenState extends State<LogInScreen> {
       body: Form(
         key: _formkey,
         child: Column(
-//crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(15)),
-                child: TextFormField(
-                  controller: emailController,
-                  validator: ((value) {
-                    if (value!.isEmpty) {
-                      return "please enter login id";
-                    }
-                    if (!EmailValidator.validate(value)) {
-                      return "Please Enter a Valid E-mail Address";
-                    }
-                    return null;
-                  }),
-                  decoration: const InputDecoration(
-                      icon: Icon(Icons.email_outlined),
-                      contentPadding: EdgeInsets.only(left: 5),
-                      border: InputBorder.none,
-                      hintText: "Enter Login id",
-                      hintStyle: TextStyle(color: Colors.black)),
-                ),
+              child: TextFormField(
+                controller: context.watch<ToDoProvider>().emailController,
+                validator: ((value) {
+                  if (value!.isEmpty) {
+                    return "please enter login id";
+                  }
+                  if (!EmailValidator.validate(value)) {
+                    return "Please Enter a Valid E-mail Address";
+                  }
+                  return null;
+                }),
+                decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.only(left: 5),
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.email_outlined),
+                    hintText: "Enter Login id",
+                    hintStyle: TextStyle(color: Colors.black)),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(15)),
-                child: TextFormField(
-                  controller: passwordController,
-                  validator: ((value) {
-                    if (value!.isEmpty) {
-                      return "please enter Password";
-                    }
-
-                    return null;
-                  }),
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                      icon: Icon(CupertinoIcons.padlock),
-                      contentPadding: EdgeInsets.only(left: 5),
-                      border: InputBorder.none,
-                      hintText: "Enter Password",
-                      hintStyle: TextStyle(color: Colors.black)),
-                ),
+              child: TextFormField(
+                controller: context.watch<ToDoProvider>().passwordController,
+                validator: ((value) {
+                  if (value!.isEmpty) {
+                    return "please enter Password";
+                  }
+                  return null;
+                }),
+                obscureText: true,
+                decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.only(left: 5),
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    hintText: "Enter Password",
+                    hintStyle: TextStyle(color: Colors.black)),
               ),
             ),
             Padding(
@@ -102,21 +82,14 @@ class _LogInScreenState extends State<LogInScreen> {
                 decoration: const BoxDecoration(color: Colors.black),
                 child: ElevatedButton(
                     onPressed: () {
-                      try {
-                        FirebaseAuth.instance
-                            .signInWithEmailAndPassword(
-                                email: emailController.text,
-                                password: passwordController.text)
-                            .then((value) {
-                          if (_formkey.currentState!.validate()) {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const Home();
-                            }));
-                          }
+                      if (_formkey.currentState!.validate()) {
+                        context.read<ToDoProvider>().login(() {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Home(),
+                              ));
                         });
-                      } catch (e) {
-                        log('An Exception Occured:$e');
                       }
                     },
                     child: const Text(

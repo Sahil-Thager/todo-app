@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_todo_app/firebase_options.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/provider/signup_provider.dart';
+import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -13,15 +16,20 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider<ToDoProvider>(
-      create: (context) => ToDoProvider(),
-      child: const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ToDoProvider()),
+        ChangeNotifierProvider(create: (context) => SignupProvider()),
+      ],
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // This widget is the root of your application.
   @override
@@ -31,7 +39,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
-      home: const LogInScreen(),
+      home: _auth.currentUser != null ? const Home() : const LogInScreen(),
       // theme: ThemeData.dark(),
       // darkTheme: ThemeData.dark(),
       theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),

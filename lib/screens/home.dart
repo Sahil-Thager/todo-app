@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
+import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:provider/provider.dart';
 import '../constants/colors.dart';
 
@@ -17,11 +18,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+  final _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +59,15 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 onTap: (() {
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                    builder: (context) {
-                      return const Home();
-                    },
-                  ), ModalRoute.withName("sdadas"));
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const Home();
+                      },
+                    ),
+                    (route) => false,
+                  );
                 }),
                 leading: const Icon(
                   Icons.home,
@@ -101,11 +102,13 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 onTap: (() {
+                  SharedPrefrencess.remove();
+                  _auth.signOut();
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                     builder: (context) {
                       return const LogInScreen();
                     },
-                  ), ModalRoute.withName("sdadas"));
+                  ), (route) => false);
                 }),
                 leading: const Icon(
                   Icons.logout_rounded,
@@ -227,12 +230,13 @@ class _HomeState extends State<Home> {
 }
 
 Future<void> _showDialog(BuildContext context) async {
+  context.read<ToDoProvider>().getData();
   return showDialog(
       context: context,
       builder: (context) {
-        return const SingleChildScrollView(
+        return SingleChildScrollView(
           child: AlertDialog(
-            title: Text(
+            title: const Text(
               "User's Profile",
               style: TextStyle(fontSize: 20, color: Colors.black),
             ),
@@ -240,10 +244,19 @@ Future<void> _showDialog(BuildContext context) async {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 30,
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Colors.amber,
+                    image: const DecorationImage(
+                      image: AssetImage('assets/sahil1.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(top: 5),
                   child: Text(
                     "Name",
@@ -254,13 +267,13 @@ Future<void> _showDialog(BuildContext context) async {
                   ),
                 ),
                 Text(
-                  "Sahil Thager",
-                  style: TextStyle(
+                  context.watch<ToDoProvider>().name,
+                  style: const TextStyle(
                     fontSize: 15,
                     color: Colors.black,
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(top: 5),
                   child: Text(
                     "G-Mail",
@@ -271,13 +284,13 @@ Future<void> _showDialog(BuildContext context) async {
                   ),
                 ),
                 Text(
-                  "sahilthager@gmail.com",
-                  style: TextStyle(
+                  context.watch<ToDoProvider>().email,
+                  style: const TextStyle(
                     fontSize: 15,
                     color: Colors.black,
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(top: 5),
                   child: Text(
                     "Mobile",
@@ -288,8 +301,8 @@ Future<void> _showDialog(BuildContext context) async {
                   ),
                 ),
                 Text(
-                  "895623147",
-                  style: TextStyle(
+                  context.watch<ToDoProvider>().number,
+                  style: const TextStyle(
                     fontSize: 15,
                     color: Colors.black,
                   ),
@@ -323,17 +336,19 @@ class _MyTileState extends State<MyTile> {
     notificationServices.intialiseNotification();
     super.initState();
 
-    sss(() {
-      notificationServices.sendNotification(widget.todo.todoText.toString(),
-          "Only 10 minutes are left to complete your task");
-    });
-    ss(() {
+    forTenMinutNotification(() {
+      final time = widget.todo.date.difference(DateTime.now());
       notificationServices.sendNotification(
-          widget.todo.todoText.toString(), "One day Left for your task ");
+          widget.todo.todoText.toString(), time.toString());
+    });
+    forOneDayNotification(() {
+      final timer = widget.todo.date.difference(DateTime.now());
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), timer.toString());
     });
   }
 
-  void sss(VoidCallback callback) {
+  void forTenMinutNotification(VoidCallback callback) {
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
@@ -346,7 +361,7 @@ class _MyTileState extends State<MyTile> {
     });
   }
 
-  void ss(VoidCallback callback) {
+  void forOneDayNotification(VoidCallback callback) {
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
@@ -354,6 +369,7 @@ class _MyTileState extends State<MyTile> {
         callback.call();
         timer.cancel();
         todo.triggerNotification = true;
+        todo.triggerNotification = false;
       }
     });
   }
@@ -368,7 +384,6 @@ class _MyTileState extends State<MyTile> {
           child: ListTile(
             onTap: () {
               selectedIndex = widget.index;
-
               if (selectedIndex == widget.index) {
                 provider.toggleItemSelection(widget.index);
               }
