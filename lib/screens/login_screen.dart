@@ -1,8 +1,10 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
+import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class LogInScreen extends StatefulWidget {
@@ -13,19 +15,25 @@ class LogInScreen extends StatefulWidget {
 }
 
 class _LogInScreenState extends State<LogInScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   final _formkey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme;
+    final signUpProvider = context.watch<SignupProvider>();
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: color.background,
       appBar: AppBar(
+        backgroundColor: color.background,
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        title: const Text(
+        title: Text(
           "Login",
           style: TextStyle(
-            color: Colors.black,
+            color: color.onBackground,
             fontSize: 30,
           ),
         ),
@@ -37,7 +45,7 @@ class _LogInScreenState extends State<LogInScreen> {
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: TextFormField(
-                controller: context.watch<ToDoProvider>().emailController,
+                controller: signUpProvider.emailController,
                 validator: ((value) {
                   if (value!.isEmpty) {
                     return "please enter login id";
@@ -47,18 +55,18 @@ class _LogInScreenState extends State<LogInScreen> {
                   }
                   return null;
                 }),
-                decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.only(left: 5),
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email_outlined),
+                decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(left: 5),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.email_outlined),
                     hintText: "Enter Login id",
-                    hintStyle: TextStyle(color: Colors.black)),
+                    hintStyle: TextStyle(color: color.outline)),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: TextFormField(
-                controller: context.watch<ToDoProvider>().passwordController,
+                controller: passwordController,
                 validator: ((value) {
                   if (value!.isEmpty) {
                     return "please enter Password";
@@ -66,12 +74,12 @@ class _LogInScreenState extends State<LogInScreen> {
                   return null;
                 }),
                 obscureText: true,
-                decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.only(left: 5),
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(left: 5),
+                    prefixIcon: const Icon(Icons.lock),
+                    border: const OutlineInputBorder(),
                     hintText: "Enter Password",
-                    hintStyle: TextStyle(color: Colors.black)),
+                    hintStyle: TextStyle(color: color.outline)),
               ),
             ),
             Padding(
@@ -79,22 +87,41 @@ class _LogInScreenState extends State<LogInScreen> {
               child: Container(
                 height: 40,
                 width: double.infinity,
-                decoration: const BoxDecoration(color: Colors.black),
-                child: ElevatedButton(
+                decoration: BoxDecoration(color: color.onBackground),
+                child: TextButton(
                     onPressed: () {
+                      context.read<SignupProvider>().saveData();
                       if (_formkey.currentState!.validate()) {
-                        context.read<ToDoProvider>().login(() {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Home(),
-                              ));
+                        FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: signUpProvider.emailController.text,
+                                password: passwordController.text)
+                            .then((value) {
+                          value;
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return const Home();
+                            },
+                          ));
+                        }).catchError((e) {
+                          if (e is FirebaseAuthException) {
+                            switch (e.code) {
+                              case 'INVALID_LOGIN_CREDENTIALS':
+                                Utils.showSnackbar(
+                                  'Incorrect username or password',
+                                  context,
+                                );
+                                break;
+                              default:
+                                break;
+                            }
+                          }
                         });
                       }
                     },
-                    child: const Text(
+                    child: Text(
                       "Login",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 20, color: color.outline),
                     )),
               ),
             ),
@@ -120,7 +147,7 @@ class _LogInScreenState extends State<LogInScreen> {
                 height: 45,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: color.onBackground),
                     borderRadius: BorderRadius.circular(25)),
                 child: TextButton(
                     onPressed: () {
@@ -129,9 +156,9 @@ class _LogInScreenState extends State<LogInScreen> {
                         return const SignupScreen();
                       }));
                     },
-                    child: const Text(
+                    child: Text(
                       "SignUp",
-                      style: TextStyle(fontSize: 20, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color: color.onBackground),
                     )),
               ),
             )

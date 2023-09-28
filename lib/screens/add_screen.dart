@@ -14,9 +14,11 @@ class _NewListState extends State<NewList> {
   @override
   Widget build(BuildContext context) {
     final addTodoProvider = Provider.of<ToDoProvider>(context);
+    final color = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         centerTitle: true,
         title: const Text("Add New ToDo"),
       ),
@@ -55,7 +57,10 @@ class _NewListState extends State<NewList> {
                       .addToDoItem()
                       .then((value) => Navigator.pop(context));
                 },
-                child: const Text("Add ToDo"),
+                child: Text(
+                  "Add ToDo",
+                  style: TextStyle(color: color.onBackground),
+                ),
               ),
             ),
           ],

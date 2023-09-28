@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
@@ -19,42 +20,58 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ToDoProvider>().getData();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme;
+
+    final themeProvider = Provider.of<ThemeNotifier>(context);
     return Scaffold(
         drawer: Drawer(
           child: ListView(
             children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.lightBlue,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "My TODO APP",
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.white,
+              SizedBox(
+                height: 190,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: color.background,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "My TODO APP",
+                        style: TextStyle(
+                          fontSize: 30,
+                          color: color.onBackground,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 22),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.account_circle_rounded),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 22),
+                        child: CircleAvatar(
+                          backgroundColor: color.onBackground,
+                          child: const Icon(Icons.account_circle_rounded),
+                        ),
                       ),
-                    ),
-                    Text(
-                      "User's Name",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          "User's Name",
+                          style: TextStyle(
+                            color: color.onBackground,
+                            fontSize: 20,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               ListTile(
@@ -69,9 +86,9 @@ class _HomeState extends State<Home> {
                     (route) => false,
                   );
                 }),
-                leading: const Icon(
+                leading: Icon(
                   Icons.home,
-                  color: Colors.black,
+                  color: color.onBackground,
                 ),
                 title: const Text(
                   "Home",
@@ -80,24 +97,26 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-              const ListTile(
+              ListTile(
                 leading: Icon(
                   Icons.account_circle,
-                  color: Colors.black,
+                  color: color.onBackground,
                 ),
                 title: Text(
                   "User's account",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: color.onBackground),
                 ),
               ),
-              const ListTile(
+              ListTile(
                 leading: Icon(
                   Icons.settings,
-                  color: Colors.black,
+                  color: color.onBackground,
                 ),
                 title: Text(
                   "Settings",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: color.onBackground),
                 ),
               ),
               ListTile(
@@ -110,19 +129,37 @@ class _HomeState extends State<Home> {
                     },
                   ), (route) => false);
                 }),
-                leading: const Icon(
+                leading: Icon(
                   Icons.logout_rounded,
-                  color: Colors.black,
+                  color: color.onBackground,
                 ),
-                title: const Text(
+                title: Text(
                   "LogOut",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: color.onBackground),
                 ),
-              )
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.dark_mode,
+                  color: color.onBackground,
+                ),
+                title: Text(
+                  "Dark Theme",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: color.onBackground),
+                ),
+                trailing: Switch(
+                  value: themeProvider.isDarkMode,
+                  onChanged: ((value) {
+                    themeProvider.setTheme();
+                  }),
+                ),
+              ),
             ],
           ),
         ),
-        backgroundColor: tdBGColor,
+        backgroundColor: color.background,
         appBar: _buildAppBar(),
         body: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -132,27 +169,27 @@ class _HomeState extends State<Home> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
+                  color: color.onSecondary,
                 ),
                 height: 40,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextField(
                     onChanged: context.read<ToDoProvider>().filter,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.only(bottom: 10),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(bottom: 10),
                       prefixIcon: Icon(
                         Icons.search,
-                        color: tdBlack,
+                        color: color.outline,
                         size: 20,
                       ),
-                      prefixIconConstraints: BoxConstraints(
+                      prefixIconConstraints: const BoxConstraints(
                         maxHeight: 20,
                         minWidth: 25,
                       ),
                       border: InputBorder.none,
                       hintText: 'Search',
-                      hintStyle: TextStyle(color: tdGrey),
+                      hintStyle: TextStyle(color: color.onBackground),
                     ),
                   ),
                 ),
@@ -160,12 +197,12 @@ class _HomeState extends State<Home> {
               const SizedBox(
                 height: 10,
               ),
-              const Text(
+              Text(
                 "All ToDos",
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w500,
-                  color: tdBlack,
+                  color: color.onBackground,
                 ),
               ),
               const SizedBox(
@@ -205,9 +242,11 @@ class _HomeState extends State<Home> {
   }
 
   AppBar _buildAppBar() {
+    final color = Theme.of(context).colorScheme;
+
     return AppBar(
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: tdBGColor,
+      iconTheme: IconThemeData(color: color.onBackground),
+      backgroundColor: color.background,
       elevation: 0,
       title: Padding(
         padding: const EdgeInsets.only(left: 240),
@@ -220,7 +259,11 @@ class _HomeState extends State<Home> {
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.asset('assets/sahil1.jpg'),
+              child: CircleAvatar(
+                child: Text(
+                  context.watch<ToDoProvider>().email[0],
+                ),
+              ),
             ),
           ),
         ),
@@ -230,81 +273,80 @@ class _HomeState extends State<Home> {
 }
 
 Future<void> _showDialog(BuildContext context) async {
+  final color = Theme.of(context).colorScheme;
   context.read<ToDoProvider>().getData();
   return showDialog(
       context: context,
       builder: (context) {
         return SingleChildScrollView(
           child: AlertDialog(
-            title: const Text(
+            title: Text(
               "User's Profile",
-              style: TextStyle(fontSize: 20, color: Colors.black),
+              style: TextStyle(fontSize: 20, color: color.onBackground),
             ),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(
-                  height: 100,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.amber,
-                    image: const DecorationImage(
-                      image: AssetImage('assets/sahil1.jpg'),
-                      fit: BoxFit.cover,
+                CircleAvatar(
+                  backgroundColor: color.background,
+                  radius: 50,
+                  child: Text(
+                    context.watch<ToDoProvider>().email[0],
+                    style: TextStyle(
+                      color: color.onBackground,
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 5),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5),
                   child: Text(
                     "Name",
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black,
+                      color: color.onBackground,
                     ),
                   ),
                 ),
                 Text(
                   context.watch<ToDoProvider>().name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Colors.black,
+                    color: color.onBackground,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 5),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5),
                   child: Text(
                     "G-Mail",
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black,
+                      color: color.onBackground,
                     ),
                   ),
                 ),
                 Text(
                   context.watch<ToDoProvider>().email,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Colors.black,
+                    color: color.onBackground,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 5),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5),
                   child: Text(
                     "Mobile",
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black,
+                      color: color.onBackground,
                     ),
                   ),
                 ),
                 Text(
                   context.watch<ToDoProvider>().number,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Colors.black,
+                    color: color.onBackground,
                   ),
                 ),
               ],
@@ -377,6 +419,7 @@ class _MyTileState extends State<MyTile> {
   @override
   Widget build(BuildContext context) {
     int selectedIndex = 0;
+    final color = Theme.of(context).colorScheme;
     return Consumer<ToDoProvider>(
       builder: (context, provider, child) {
         return Padding(
@@ -393,18 +436,18 @@ class _MyTileState extends State<MyTile> {
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            tileColor: Colors.white,
+            tileColor: color.onInverseSurface,
             leading: Icon(
               widget.todo.isDone
                   ? Icons.check_box
                   : Icons.check_box_outline_blank,
-              color: tdBlue,
+              color: color.onBackground,
             ),
             title: Text(
               widget.todo.todoText ?? 'null',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black,
+                color: color.onBackground,
                 decoration:
                     widget.todo.isDone ? TextDecoration.lineThrough : null,
               ),

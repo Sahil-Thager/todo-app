@@ -2,25 +2,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
+import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme;
     TextEditingController passwordController = TextEditingController();
+    // TextEditingController emailController = TextEditingController();
 
     final signUpProvider = context.watch<SignupProvider>();
 
+    FocusNode emailFocusNode = FocusNode();
+    FocusNode passwordFocusNode = FocusNode();
+    FocusNode numberFocusNode = FocusNode();
+    FocusNode nameFocusNode = FocusNode();
+
     return Scaffold(
+      backgroundColor: color.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: color.background,
         centerTitle: true,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "SignUp",
-          style: TextStyle(fontSize: 20, color: Colors.black),
+          style: TextStyle(fontSize: 20, color: color.onBackground),
         ),
       ),
       body: Column(
@@ -29,15 +37,19 @@ class SignupScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: color.onInverseSurface,
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(15)),
               child: TextFormField(
+                focusNode: nameFocusNode,
                 controller: signUpProvider.nameController,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: "Enter Name",
                     contentPadding: EdgeInsetsDirectional.all(8)),
+                onFieldSubmitted: (value) {
+                  return FocusScope.of(context).requestFocus(numberFocusNode);
+                },
               ),
             ),
           ),
@@ -45,15 +57,19 @@ class SignupScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: color.onInverseSurface,
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(15)),
               child: TextFormField(
+                focusNode: numberFocusNode,
                 controller: signUpProvider.numberController,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: "Enter Mobile Number",
                     contentPadding: EdgeInsetsDirectional.all(8)),
+                onFieldSubmitted: (value) {
+                  return FocusScope.of(context).requestFocus(emailFocusNode);
+                },
               ),
             ),
           ),
@@ -61,15 +77,19 @@ class SignupScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: color.onInverseSurface,
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(15)),
               child: TextFormField(
+                focusNode: emailFocusNode,
                 controller: signUpProvider.emailController,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: "Enter Email",
                     contentPadding: EdgeInsetsDirectional.all(8)),
+                onFieldSubmitted: (value) {
+                  return FocusScope.of(context).requestFocus(passwordFocusNode);
+                },
               ),
             ),
           ),
@@ -77,10 +97,11 @@ class SignupScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: color.onInverseSurface,
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(15)),
               child: TextFormField(
+                focusNode: passwordFocusNode,
                 controller: passwordController,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -95,33 +116,51 @@ class SignupScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(30),
-                  color: Colors.black),
+                  color: color.onSurfaceVariant),
               height: 50,
               width: double.infinity,
               child: TextButton(
                 onPressed: () {
-                  context.read<SignupProvider>().saveData();
-                  FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                    email: signUpProvider.emailController.text,
-                    password: passwordController.text,
-                  )
-                      .then(
-                    (value) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return const LogInScreen();
-                          },
-                        ),
-                      );
-                    },
-                  );
+                  if (signUpProvider.nameController.text.isEmpty) {
+                    Utils.showSnackbar("Please Enter Name", context);
+                  } else if (signUpProvider.numberController.text.isEmpty) {
+                    Utils.showSnackbar("Please Enter Number", context);
+                  } else if (signUpProvider.emailController.text.isEmpty) {
+                    Utils.showSnackbar("Please Enter Email", context);
+                  } else if (passwordController.text.isEmpty) {
+                    Utils.showSnackbar("Please Enter Password", context);
+                  } else if (passwordController.text.length < 6) {
+                    Utils.showSnackbar(
+                        "Please Enter atleast 6 characters in your password",
+                        context);
+                  } else {
+                    context.read<SignupProvider>().saveData();
+                    FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                          email: signUpProvider.emailController.text,
+                          password: passwordController.text,
+                        )
+                        .then((value) =>
+                            Utils.showSnackbar("Signup Successfully", context))
+                        .onError((error, stackTrace) {
+                      Utils.showSnackbar(error.toString(), context);
+                    }).then(
+                      (value) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return const LogInScreen();
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  }
                 },
-                child: const Text(
+                child: Text(
                   "SignUp",
-                  style: TextStyle(fontSize: 20, color: Colors.white),
+                  style: TextStyle(fontSize: 20, color: color.onInverseSurface),
                 ),
               ),
             ),

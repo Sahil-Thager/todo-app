@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
@@ -67,13 +66,13 @@ class ToDoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void login(VoidCallback callback) {
-    FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-    callback.call();
-  }
+  // void login(VoidCallback callback) {
+  //   FirebaseAuth.instance.signInWithEmailAndPassword(
+  //     email: _emailController.text,
+  //     password: _passwordController.text,
+  //   );
+  //   callback.call();
+  // }
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();

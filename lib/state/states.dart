@@ -21,7 +21,7 @@ abstract class BaseChangeNotifier extends ChangeNotifier {
     state = LoadedState();
   }
 
-  // TODO: Not complete
+  // (TODO: Not complete)
   void failureState(String failure) {
     state = FailureState();
   }
