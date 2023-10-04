@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
+import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogInScreen extends StatefulWidget {
   const LogInScreen({super.key});
@@ -85,9 +87,12 @@ class _LogInScreenState extends State<LogInScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
               child: Container(
-                height: 40,
+                height: 50,
                 width: double.infinity,
-                decoration: BoxDecoration(color: color.onBackground),
+                decoration: BoxDecoration(
+                    color: color.background,
+                    border: Border.all(color: color.onBackground),
+                    borderRadius: BorderRadius.circular(25)),
                 child: TextButton(
                     onPressed: () {
                       context.read<SignupProvider>().saveData();
@@ -96,13 +101,18 @@ class _LogInScreenState extends State<LogInScreen> {
                             .signInWithEmailAndPassword(
                                 email: signUpProvider.emailController.text,
                                 password: passwordController.text)
-                            .then((value) {
-                          value;
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return const Home();
-                            },
-                          ));
+                            .then((value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs
+                              .setString(
+                                  Keys.email.name, value.user?.email ?? '')
+                              .then((value) =>
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Home();
+                                    },
+                                  )));
                         }).catchError((e) {
                           if (e is FirebaseAuthException) {
                             switch (e.code) {
@@ -121,7 +131,7 @@ class _LogInScreenState extends State<LogInScreen> {
                     },
                     child: Text(
                       "Login",
-                      style: TextStyle(fontSize: 20, color: color.outline),
+                      style: TextStyle(fontSize: 20, color: color.onBackground),
                     )),
               ),
             ),

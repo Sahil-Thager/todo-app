@@ -8,6 +8,7 @@ class ToDoProvider extends ChangeNotifier {
   ToDoProvider() {
     _filteredList = _todos;
   }
+
   final List<ToDo> _todos = [];
   Iterable<ToDo> _filteredList = [];
 
@@ -55,7 +56,6 @@ class ToDoProvider extends ChangeNotifier {
       todoText: _listConstroller.text,
       date: _selectedDateTime,
     ));
-
     notifyListeners();
   }
 
@@ -77,7 +77,8 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
     _name = prefs.getString(Keys.name.toString()) ?? '';
-    _email = prefs.getString(Keys.email.toString()) ?? '';
+    _email = prefs.getString(Keys.email.name) ?? '';
     _number = prefs.getString(Keys.number.toString()) ?? '';
+    notifyListeners();
   }
 }

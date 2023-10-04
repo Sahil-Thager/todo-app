@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
@@ -5,20 +8,27 @@ import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  TextEditingController passwordController = TextEditingController();
+
+  final fireStore = FirebaseFirestore.instance.collection("User Record");
+
+  FocusNode emailFocusNode = FocusNode();
+  FocusNode passwordFocusNode = FocusNode();
+  FocusNode numberFocusNode = FocusNode();
+  FocusNode nameFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
-    TextEditingController passwordController = TextEditingController();
-    // TextEditingController emailController = TextEditingController();
-
     final signUpProvider = context.watch<SignupProvider>();
-
-    FocusNode emailFocusNode = FocusNode();
-    FocusNode passwordFocusNode = FocusNode();
-    FocusNode numberFocusNode = FocusNode();
-    FocusNode nameFocusNode = FocusNode();
 
     return Scaffold(
       backgroundColor: color.background,
@@ -142,7 +152,20 @@ class SignupScreen extends StatelessWidget {
                         )
                         .then((value) =>
                             Utils.showSnackbar("Signup Successfully", context))
-                        .onError((error, stackTrace) {
+                        .then((value) {
+                      String id =signUpProvider.emailController.text;
+
+                      fireStore.doc(id).set({
+                        "Name": signUpProvider.nameController.text,
+                        "Mobile": signUpProvider.numberController.text,
+                        "Email": signUpProvider.emailController.text,
+                        "Password": passwordController.text,
+                        "id": id,
+                      }).onError((error, stackTrace) {
+                        log("$stackTrace");
+                      });
+                    }).onError((error, stackTrace) {
+                      log("$stackTrace");
                       Utils.showSnackbar(error.toString(), context);
                     }).then(
                       (value) {

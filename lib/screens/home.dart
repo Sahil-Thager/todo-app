@@ -23,8 +23,10 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await context.read<ToDoProvider>().getData();
+    });
     super.initState();
-    context.read<ToDoProvider>().getData();
   }
 
   @override
@@ -57,7 +59,10 @@ class _HomeState extends State<Home> {
                         padding: const EdgeInsets.only(top: 22),
                         child: CircleAvatar(
                           backgroundColor: color.onBackground,
-                          child: const Icon(Icons.account_circle_rounded),
+                          child: Icon(
+                            Icons.account_circle_rounded,
+                            color: color.background,
+                          ),
                         ),
                       ),
                       Padding(
@@ -257,13 +262,17 @@ class _HomeState extends State<Home> {
             onTap: () {
               _showDialog(context);
             },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: CircleAvatar(
-                child: Text(
-                  context.watch<ToDoProvider>().email[0],
-                ),
-              ),
+            child: Consumer(
+              builder: (context, value, child) {
+                final email = context.watch<ToDoProvider>().email;
+
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: CircleAvatar(
+                    child: Text(email.isNotEmpty ? email[0] : "O"),
+                  ),
+                );
+              },
             ),
           ),
         ),

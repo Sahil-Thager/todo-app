@@ -18,6 +18,7 @@ class SignupProvider extends BaseChangeNotifier {
       await SharedPrefrencess.save(Keys.email, _emailController.text);
       await SharedPrefrencess.save(Keys.name, _nameController.text);
       await SharedPrefrencess.save(Keys.number, _numberController.text);
+
       loadedState();
     } catch (e) {
       failureState(e.toString());
