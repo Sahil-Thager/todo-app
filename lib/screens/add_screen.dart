@@ -14,6 +14,7 @@ class _NewListState extends State<NewList> {
   @override
   Widget build(BuildContext context) {
     final addTodoProvider = Provider.of<ToDoProvider>(context);
+
     final color = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -25,12 +26,12 @@ class _NewListState extends State<NewList> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(
-              height: 200,
-              child: CupertinoDatePicker(
-                onDateTimeChanged: context.read<ToDoProvider>().setTimeAndDate,
-              ),
-            ),
+            // SizedBox(
+            //   height: 200,
+            //   child: CupertinoDatePicker(
+            //     onDateTimeChanged: context.read<ToDoProvider>().setTimeAndDate,
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.only(
                 top: 30,
@@ -45,6 +46,10 @@ class _NewListState extends State<NewList> {
                     hintText: "Add New ToDo",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15)),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () => provider.selectDateTime(context),
+                    ),
                   ),
                 );
               }),
@@ -54,7 +59,7 @@ class _NewListState extends State<NewList> {
               child: ElevatedButton(
                 onPressed: () {
                   addTodoProvider
-                      .addToDoItem()
+                      .firebaseData()
                       .then((value) => Navigator.pop(context));
                 },
                 child: Text(

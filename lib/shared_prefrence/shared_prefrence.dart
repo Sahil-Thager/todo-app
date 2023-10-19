@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Keys {
+enum StorageKeys {
   name,
   number,
   email,
@@ -9,15 +9,15 @@ enum Keys {
 class SharedPrefrencess {
   SharedPrefrencess._();
 
-  static Future<void> save(Keys key, String value) async {
+  static Future<void> setString(StorageKeys key, String value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key.toString(), value);
+    prefs.setString(key.name, value);
   }
 
-  // static Future<void> fetch(Keys key) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.getString(key.toString());
-  // }
+  static Future<String> getString(StorageKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key.name) ?? '';
+  }
 
   static Future<void> remove() async {
     final prefs = await SharedPreferences.getInstance();

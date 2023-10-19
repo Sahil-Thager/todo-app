@@ -21,7 +21,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ToDoProvider()),
         ChangeNotifierProvider(create: (context) => SignupProvider()),
         ChangeNotifierProvider(
-          create: (context) => ThemeNotifier(),
+          create: (context) => ThemeProvider(),
         ),
       ],
       child: MyApp(),
@@ -34,21 +34,14 @@ class MyApp extends StatelessWidget {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setSystemUIOverlayStyle(
-    //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    final provider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
       home: _auth.currentUser != null ? const Home() : const LogInScreen(),
-      // theme: ThemeData.dark(),
-      // darkTheme: ThemeData.dark(),
-      themeMode: context.watch<ThemeNotifier>().isDarkMode
-          ? ThemeMode.dark
-          : ThemeMode.light,
-
+      themeMode: provider.themeMode,
       theme: ThemeData(brightness: Brightness.light, useMaterial3: true),
       darkTheme: ThemeData(brightness: Brightness.dark, useMaterial3: true),
     );

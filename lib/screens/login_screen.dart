@@ -1,13 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
-import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LogInScreen extends StatefulWidget {
   const LogInScreen({super.key});
@@ -17,6 +16,9 @@ class LogInScreen extends StatefulWidget {
 }
 
 class _LogInScreenState extends State<LogInScreen> {
+  User? userId = FirebaseAuth.instance.currentUser;
+  final fireStore = FirebaseFirestore.instance.collection("User Record");
+
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -101,18 +103,13 @@ class _LogInScreenState extends State<LogInScreen> {
                             .signInWithEmailAndPassword(
                                 email: signUpProvider.emailController.text,
                                 password: passwordController.text)
-                            .then((value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs
-                              .setString(
-                                  Keys.email.name, value.user?.email ?? '')
-                              .then((value) =>
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return const Home();
-                                    },
-                                  )));
+                            .then((value) async {})
+                            .then((value) {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return const Home();
+                            },
+                          ));
                         }).catchError((e) {
                           if (e is FirebaseAuthException) {
                             switch (e.code) {
@@ -121,6 +118,10 @@ class _LogInScreenState extends State<LogInScreen> {
                                   'Incorrect username or password',
                                   context,
                                 );
+
+                                break;
+                              case 'VALID_LOGIN_CREDENTIALS':
+                                Utils.showSnackbar("Login Sucessful", context);
                                 break;
                               default:
                                 break;

@@ -25,6 +25,7 @@ class _HomeState extends State<Home> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await context.read<ToDoProvider>().getData();
+      await context.read<ToDoProvider>().todosData();
     });
     super.initState();
   }
@@ -33,7 +34,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
 
-    final themeProvider = Provider.of<ThemeNotifier>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
         drawer: Drawer(
           child: ListView(
@@ -155,9 +156,9 @@ class _HomeState extends State<Home> {
                       fontWeight: FontWeight.bold, color: color.onBackground),
                 ),
                 trailing: Switch(
-                  value: themeProvider.isDarkMode,
+                  value: themeProvider.themeMode == ThemeMode.dark,
                   onChanged: ((value) {
-                    themeProvider.setTheme();
+                    themeProvider.toggleTheme();
                   }),
                 ),
               ),
@@ -180,7 +181,9 @@ class _HomeState extends State<Home> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextField(
-                    onChanged: context.read<ToDoProvider>().filter,
+                    onChanged: (text) {
+                      context.read<ToDoProvider>().filter(text);
+                    },
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.only(bottom: 10),
                       prefixIcon: Icon(
@@ -216,16 +219,25 @@ class _HomeState extends State<Home> {
               Expanded(
                 child: Consumer<ToDoProvider>(
                   builder: (context, provider, child) {
-                    return provider.filteredTodoList.isEmpty
+                    return provider.filteredList.isEmpty
                         ? const Center(child: Text('Make Todo'))
                         : ListView.builder(
-                            itemCount: provider.filteredTodoList.length,
+                            itemCount: provider.filteredList.length,
                             itemBuilder: (context, index) {
-                              ToDo todo =
-                                  provider.filteredTodoList.elementAt(index);
+                              final element =
+                                  provider.filteredList.elementAt(index);
+
                               return MyTile(
-                                todo: todo,
-                                index: index,
+                                todo: ToDo(
+                                  id: element.id.toString(),
+                                  todoText: element.data()["title"],
+                                  isDone: false,
+                                  triggerNotification10:
+                                      element.data()["notificationTrigger10"],
+                                  date: DateTime.parse(
+                                    element.data()["time"],
+                                  ),
+                                ),
                               );
                             },
                           );
@@ -284,6 +296,7 @@ class _HomeState extends State<Home> {
 Future<void> _showDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
   context.read<ToDoProvider>().getData();
+
   return showDialog(
       context: context,
       builder: (context) {
@@ -301,7 +314,9 @@ Future<void> _showDialog(BuildContext context) async {
                   backgroundColor: color.background,
                   radius: 50,
                   child: Text(
-                    context.watch<ToDoProvider>().email[0],
+                    context.watch<ToDoProvider>().email.isNotEmpty
+                        ? context.watch<ToDoProvider>().email[0]
+                        : "o",
                     style: TextStyle(
                       color: color.onBackground,
                     ),
@@ -369,11 +384,9 @@ class MyTile extends StatefulWidget {
   const MyTile({
     super.key,
     required this.todo,
-    required this.index,
   });
 
   final ToDo todo;
-  final int index;
 
   @override
   State<MyTile> createState() => _MyTileState();
@@ -385,109 +398,136 @@ class _MyTileState extends State<MyTile> {
   @override
   void initState() {
     notificationServices.intialiseNotification();
+    // context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
+
     super.initState();
+    // notification(() {
+    //   notificationServices.sendNotification(
+    //       widget.todo.todoText.toString(), widget.todo.date.toString());
+    // });
+    sss(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
+    // notification(() {
+    //   notificationServices.sendNotification(
+    //       widget.todo.todoText.toString(), widget.todo.date.toString());
+    // });
 
-    forTenMinutNotification(() {
-      final time = widget.todo.date.difference(DateTime.now());
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), time.toString());
-    });
-    forOneDayNotification(() {
-      final timer = widget.todo.date.difference(DateTime.now());
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), timer.toString());
-    });
+    // forTenMinutNotification(() {
+    //   final time = widget.todo.date.difference(DateTime.now());
+    //   notificationServices.sendNotification(
+    //       widget.todo.todoText.toString(), time.toString());
+    // });
+    // forOneDayNotification(() {
+    //   final timer = widget.todo.date.difference(DateTime.now());
+    //   notificationServices.sendNotification(
+    //       widget.todo.todoText.toString(), timer.toString());
+    // });
   }
 
-  void forTenMinutNotification(VoidCallback callback) {
+  void sss(VoidCallback callback) {
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+      if (timeDifference.inSeconds <= 600 &&
+          todo.triggerNotification10 == false) {
+        context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
+
         callback.call();
         timer.cancel();
-        todo.triggerNotification = true;
       }
     });
   }
 
-  void forOneDayNotification(VoidCallback callback) {
-    final todo = widget.todo;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-      if (timeDifference.inSeconds <= 86400 && !todo.triggerNotification) {
-        callback.call();
-        timer.cancel();
-        todo.triggerNotification = true;
-        todo.triggerNotification = false;
-      }
-    });
-  }
+  // void notification(VoidCallback callback) {
+  //   final todo = widget.todo;
+  //   Timer.periodic(const Duration(seconds: 1), (timer) {
+  //     final timeDifference = widget.todo.date.difference(DateTime.now());
+  //     if (timeDifference.inSeconds <= 3600 ||
+  //         timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+  //       callback.call();
+  //       timer.cancel();
+  //       todo.triggerNotification = false;
+  //     }
+  //   });
+  // }
+
+  // void forTenMinutNotification(VoidCallback callback) {
+  //   final todo = widget.todo;
+  //   Timer.periodic(const Duration(seconds: 1), (timer) {
+  //     final timeDifference = widget.todo.date.difference(DateTime.now());
+
+  //     if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
+  //       callback.call();
+  //       timer.cancel();
+  //       todo.triggerNotification = true;
+  //     }
+  //   });
+  // }
+
+  // void forOneDayNotification(VoidCallback callback) {
+  //   final todo = widget.todo;
+  //   Timer.periodic(const Duration(seconds: 1), (timer) {
+  //     final timeDifference = widget.todo.date.difference(DateTime.now());
+  //     if (timeDifference.inSeconds <= 3600) {
+  //       callback.call();
+  //       timer.cancel();
+  //       todo.triggerMyNotification = true;
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    int selectedIndex = 0;
     final color = Theme.of(context).colorScheme;
-    return Consumer<ToDoProvider>(
-      builder: (context, provider, child) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListTile(
-            onTap: () {
-              selectedIndex = widget.index;
-              if (selectedIndex == widget.index) {
-                provider.toggleItemSelection(widget.index);
-              }
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            tileColor: color.onInverseSurface,
-            leading: Icon(
-              widget.todo.isDone
-                  ? Icons.check_box
-                  : Icons.check_box_outline_blank,
-              color: color.onBackground,
-            ),
-            title: Text(
-              widget.todo.todoText ?? 'null',
-              style: TextStyle(
-                fontSize: 16,
-                color: color.onBackground,
-                decoration:
-                    widget.todo.isDone ? TextDecoration.lineThrough : null,
-              ),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.all(0),
-              margin: const EdgeInsets.symmetric(
-                vertical: 12,
-              ),
-              height: 35,
-              width: 35,
-              decoration: BoxDecoration(
-                color: tdRed,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: IconButton(
-                color: Colors.white,
-                iconSize: 18,
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  selectedIndex = widget.index;
-                  if (selectedIndex == widget.index) {
-                    provider.deleteToDoItem(widget.index);
-                  }
-                },
-              ),
-            ),
-            subtitle: Text(widget.todo.date.toString()),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListTile(
+        onTap: () {
+          // provider.toggleItemSelection(provider.docList[widget.index]);
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        tileColor: color.onInverseSurface,
+        leading: Icon(
+          widget.todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+          color: color.onBackground,
+        ),
+        title: Text(
+          widget.todo.todoText ?? 'na',
+          style: TextStyle(
+            fontSize: 16,
+            color: color.onBackground,
+            decoration: widget.todo.isDone ? TextDecoration.lineThrough : null,
           ),
-        );
-      },
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.all(0),
+          margin: const EdgeInsets.symmetric(
+            vertical: 12,
+          ),
+          height: 35,
+          width: 35,
+          decoration: BoxDecoration(
+            color: tdRed,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: IconButton(
+            color: Colors.white,
+            iconSize: 18,
+            icon: const Icon(Icons.delete),
+            onPressed: () async {
+              // provider.deleteToDoItem(
+              //     widget.index, provider.docList[widget.index].id);
+            },
+          ),
+        ),
+        subtitle: Text(widget.todo.date.toLocal().toString()),
+      ),
     );
   }
 }

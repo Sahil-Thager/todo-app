@@ -16,6 +16,10 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  // final Map<String, dynamic> profileData = {
+  //   'name': 'John Doe',
+  //   'email': 'john@example.com',
+  // };
   TextEditingController passwordController = TextEditingController();
 
   final fireStore = FirebaseFirestore.instance.collection("User Record");
@@ -152,18 +156,24 @@ class _SignupScreenState extends State<SignupScreen> {
                         )
                         .then((value) =>
                             Utils.showSnackbar("Signup Successfully", context))
-                        .then((value) {
-                      String id =signUpProvider.emailController.text;
+                        .then((value) async {
+                      String id = signUpProvider.emailController.text;
 
                       fireStore.doc(id).set({
-                        "Name": signUpProvider.nameController.text,
-                        "Mobile": signUpProvider.numberController.text,
-                        "Email": signUpProvider.emailController.text,
-                        "Password": passwordController.text,
-                        "id": id,
+                        'profile': {
+                          "Name": signUpProvider.nameController.text,
+                          "Mobile": signUpProvider.numberController.text,
+                          "Email": signUpProvider.emailController.text,
+                          "Password": passwordController.text,
+                          "uid": id,
+                        },
                       }).onError((error, stackTrace) {
                         log("$stackTrace");
                       });
+
+                      final aa = await fireStore.doc(id).get();
+                      final ff = aa.data();
+                      ff;
                     }).onError((error, stackTrace) {
                       log("$stackTrace");
                       Utils.showSnackbar(error.toString(), context);
