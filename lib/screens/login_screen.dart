@@ -172,7 +172,23 @@ class _LogInScreenState extends State<LogInScreen> {
                       style: TextStyle(fontSize: 20, color: color.onBackground),
                     )),
               ),
-            )
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12, top: 18),
+              child: Container(
+                height: 45,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    border: Border.all(color: color.onBackground),
+                    borderRadius: BorderRadius.circular(25)),
+                child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "SignUp with google",
+                      style: TextStyle(fontSize: 20, color: color.onBackground),
+                    )),
+              ),
+            ),
           ],
         ),
       ),

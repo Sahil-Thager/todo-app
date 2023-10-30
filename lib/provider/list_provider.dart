@@ -97,6 +97,8 @@ class ToDoProvider extends ChangeNotifier {
     );
 
     if (picked != null) {
+      if (!context.mounted) return;
+
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
@@ -112,6 +114,7 @@ class ToDoProvider extends ChangeNotifier {
         );
 
         selectedDateTime;
+        setTimeAndDate(selectedDateTime);
         notifyListeners();
       }
     }
@@ -131,23 +134,8 @@ class ToDoProvider extends ChangeNotifier {
         .orderBy("timestamp", descending: false)
         .get();
     filteredList = docList = ss.docs;
-    // await deSerializeModel(filteredList.toList());
     notifyListeners();
   }
-
-  // int compareTime(QueryDocumentSnapshot<Map<String, dynamic>> aa,
-  //     QueryDocumentSnapshot<Map<String, dynamic>> bb) {
-  //   final Timestamp timestampA = aa.data()["timestamp"];
-  //   final Timestamp timestampB = bb.data()["timestamp"];
-
-  //   final time = DateTime.now();
-  //   final timeDiffernceA = time.difference(timestampA.toDate());
-  //   final timeDiffernceB = time.difference(timestampB.toDate());
-  //   final sortTime = timeDiffernceA.compareTo(timeDiffernceB);
-  //   notifyListeners();
-
-  //   return sortTime;
-  // }
 
   bool notifi = false;
   Future<void> firebaseData() async {
@@ -166,12 +154,4 @@ class ToDoProvider extends ChangeNotifier {
     profileList = aa.docs;
     notifyListeners();
   }
-
-  // Future<void> deSerializeModel(
-  //     List<QueryDocumentSnapshot<Map<String, dynamic>>> myList) async {
-  //   for (final i in docList) {
-  //     _list.add(Variables.fromJson(i.data()));
-  //   }
-  //   notifyListeners();
-  // }
 }

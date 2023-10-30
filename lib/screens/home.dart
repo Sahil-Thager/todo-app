@@ -19,12 +19,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final _auth = FirebaseAuth.instance;
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await context.read<ToDoProvider>().getData();
+      if (!context.mounted) return;
       await context.read<ToDoProvider>().todosData();
     });
     super.initState();
@@ -104,36 +103,8 @@ class _HomeState extends State<Home> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Icons.account_circle,
-                  color: color.onBackground,
-                ),
-                title: Text(
-                  "User's account",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: color.onBackground),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.settings,
-                  color: color.onBackground,
-                ),
-                title: Text(
-                  "Settings",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: color.onBackground),
-                ),
-              ),
-              ListTile(
                 onTap: (() {
-                  SharedPrefrencess.remove();
-                  _auth.signOut();
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                    builder: (context) {
-                      return const LogInScreen();
-                    },
-                  ), (route) => false);
+                  logoutDialog(context);
                 }),
                 leading: Icon(
                   Icons.logout_rounded,
@@ -186,16 +157,20 @@ class _HomeState extends State<Home> {
                     },
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.only(bottom: 10),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: color.outline,
-                        size: 20,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Icon(
+                          Icons.search,
+                          color: color.outline,
+                          size: 20,
+                        ),
                       ),
                       prefixIconConstraints: const BoxConstraints(
                         maxHeight: 20,
                         minWidth: 25,
                       ),
-                      border: InputBorder.none,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15)),
                       hintText: 'Search',
                       hintStyle: TextStyle(color: color.onBackground),
                     ),
@@ -380,6 +355,51 @@ Future<void> _showDialog(BuildContext context) async {
       });
 }
 
+Future<void> logoutDialog(BuildContext context) async {
+  final color = Theme.of(context).colorScheme;
+  final auth = FirebaseAuth.instance;
+
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(
+            "Do You Want to Logout",
+            style: TextStyle(color: color.onBackground, fontSize: 18),
+          ),
+        ),
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 40,
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                SharedPrefrencess.remove();
+                auth.signOut();
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  builder: (context) {
+                    return const LogInScreen();
+                  },
+                ), (route) => false);
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 class MyTile extends StatefulWidget {
   const MyTile({
     super.key,
@@ -398,32 +418,13 @@ class _MyTileState extends State<MyTile> {
   @override
   void initState() {
     notificationServices.intialiseNotification();
-    // context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
 
     super.initState();
-    // notification(() {
-    //   notificationServices.sendNotification(
-    //       widget.todo.todoText.toString(), widget.todo.date.toString());
-    // });
+
     sss(() {
       notificationServices.sendNotification(
           widget.todo.todoText.toString(), widget.todo.date.toString());
     });
-    // notification(() {
-    //   notificationServices.sendNotification(
-    //       widget.todo.todoText.toString(), widget.todo.date.toString());
-    // });
-
-    // forTenMinutNotification(() {
-    //   final time = widget.todo.date.difference(DateTime.now());
-    //   notificationServices.sendNotification(
-    //       widget.todo.todoText.toString(), time.toString());
-    // });
-    // forOneDayNotification(() {
-    //   final timer = widget.todo.date.difference(DateTime.now());
-    //   notificationServices.sendNotification(
-    //       widget.todo.todoText.toString(), timer.toString());
-    // });
   }
 
   void sss(VoidCallback callback) {
@@ -440,44 +441,6 @@ class _MyTileState extends State<MyTile> {
       }
     });
   }
-
-  // void notification(VoidCallback callback) {
-  //   final todo = widget.todo;
-  //   Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     final timeDifference = widget.todo.date.difference(DateTime.now());
-  //     if (timeDifference.inSeconds <= 3600 ||
-  //         timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
-  //       callback.call();
-  //       timer.cancel();
-  //       todo.triggerNotification = false;
-  //     }
-  //   });
-  // }
-
-  // void forTenMinutNotification(VoidCallback callback) {
-  //   final todo = widget.todo;
-  //   Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     final timeDifference = widget.todo.date.difference(DateTime.now());
-
-  //     if (timeDifference.inSeconds <= 600 && !todo.triggerNotification) {
-  //       callback.call();
-  //       timer.cancel();
-  //       todo.triggerNotification = true;
-  //     }
-  //   });
-  // }
-
-  // void forOneDayNotification(VoidCallback callback) {
-  //   final todo = widget.todo;
-  //   Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     final timeDifference = widget.todo.date.difference(DateTime.now());
-  //     if (timeDifference.inSeconds <= 3600) {
-  //       callback.call();
-  //       timer.cancel();
-  //       todo.triggerMyNotification = true;
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -526,7 +489,7 @@ class _MyTileState extends State<MyTile> {
             },
           ),
         ),
-        subtitle: Text(widget.todo.date.toLocal().toString()),
+        subtitle: Text(widget.todo.date.toString()),
       ),
     );
   }

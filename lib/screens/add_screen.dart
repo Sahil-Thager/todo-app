@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,12 +25,6 @@ class _NewListState extends State<NewList> {
       body: SafeArea(
         child: Column(
           children: [
-            // SizedBox(
-            //   height: 200,
-            //   child: CupertinoDatePicker(
-            //     onDateTimeChanged: context.read<ToDoProvider>().setTimeAndDate,
-            //   ),
-            // ),
             Padding(
               padding: const EdgeInsets.only(
                 top: 30,

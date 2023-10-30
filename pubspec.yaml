@@ -26,6 +26,7 @@ dependencies:
   fluttertoast: ^8.2.2
   cloud_firestore: ^4.9.2
   firestore_helper: ^0.3.0+5
+  google_sign_in: ^6.1.5
 
 
 dev_dependencies:
