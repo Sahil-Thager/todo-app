@@ -27,6 +27,7 @@ dependencies:
   cloud_firestore: ^4.9.2
   firestore_helper: ^0.3.0+5
   google_sign_in: ^6.1.5
+  font_awesome_flutter: ^10.6.0
 
 
 dev_dependencies:

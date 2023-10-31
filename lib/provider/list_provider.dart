@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/variables_model.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ToDoProvider extends ChangeNotifier {
   ToDoProvider() {
@@ -59,6 +61,7 @@ class ToDoProvider extends ChangeNotifier {
         .doc(data.id)
         .update({"isDone": !data.data()["isDone"]});
     await todosData();
+    notifyListeners();
   }
 
   Future<void> toggleOffNotification(String id) async {
@@ -74,7 +77,7 @@ class ToDoProvider extends ChangeNotifier {
     }
   }
 
-  void deleteToDoItem(index, id) {
+  Future<void> deleteToDoItem(index, id) async {
     final aa = fireStore.doc(_email).collection('todos').doc(id);
     aa.delete();
     docList.removeAt(index);
@@ -152,6 +155,31 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> profileData() async {
     final aa = await fireStore.doc(_email).collection("profiles").get();
     profileList = aa.docs;
+    notifyListeners();
+  }
+
+  final googleSignIn = GoogleSignIn();
+
+  GoogleSignInAccount? _user;
+
+  GoogleSignInAccount get user => _user!;
+
+  Future googleLogin() async {
+    final googleUser = await googleSignIn.signIn();
+    if (googleUser == null) return;
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    userCredential;
+    log(userCredential.user!.displayName.toString());
+    log(userCredential.user!.email.toString());
+
     notifyListeners();
   }
 }

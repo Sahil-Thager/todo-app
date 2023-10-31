@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/todo.dart';
@@ -203,6 +204,24 @@ class _HomeState extends State<Home> {
                                   provider.filteredList.elementAt(index);
 
                               return MyTile(
+                                myDecoration:
+                                    provider.docList[index].data()["isDone"]
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                icon: provider.docList[index].data()["isDone"]
+                                    ? Icons.check_box
+                                    : Icons.check_box_outline_blank,
+                                onIconButtonTap: () {
+                                  provider.deleteToDoItem(
+                                      index, provider.docList[index].id);
+                                },
+                                onTileTap: () {
+                                  log(index.toString());
+                                  log(provider.docList[index].id.toString());
+
+                                  provider.toggleItemSelection(
+                                      provider.docList[index]);
+                                },
                                 todo: ToDo(
                                   id: element.id.toString(),
                                   todoText: element.data()["title"],
@@ -273,86 +292,87 @@ Future<void> _showDialog(BuildContext context) async {
   context.read<ToDoProvider>().getData();
 
   return showDialog(
-      context: context,
-      builder: (context) {
-        return SingleChildScrollView(
-          child: AlertDialog(
-            title: Text(
-              "User's Profile",
-              style: TextStyle(fontSize: 20, color: color.onBackground),
-            ),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  backgroundColor: color.background,
-                  radius: 50,
-                  child: Text(
-                    context.watch<ToDoProvider>().email.isNotEmpty
-                        ? context.watch<ToDoProvider>().email[0]
-                        : "o",
-                    style: TextStyle(
-                      color: color.onBackground,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    "Name",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color.onBackground,
-                    ),
-                  ),
-                ),
-                Text(
-                  context.watch<ToDoProvider>().name,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: color.onBackground,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    "G-Mail",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color.onBackground,
-                    ),
-                  ),
-                ),
-                Text(
-                  context.watch<ToDoProvider>().email,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: color.onBackground,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    "Mobile",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color.onBackground,
-                    ),
-                  ),
-                ),
-                Text(
-                  context.watch<ToDoProvider>().number,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: color.onBackground,
-                  ),
-                ),
-              ],
-            ),
+    context: context,
+    builder: (context) {
+      return SingleChildScrollView(
+        child: AlertDialog(
+          title: Text(
+            "User's Profile",
+            style: TextStyle(fontSize: 20, color: color.onBackground),
           ),
-        );
-      });
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                backgroundColor: color.background,
+                radius: 50,
+                child: Text(
+                  context.watch<ToDoProvider>().email.isNotEmpty
+                      ? context.watch<ToDoProvider>().email[0]
+                      : "o",
+                  style: TextStyle(
+                    color: color.onBackground,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  "Name",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color.onBackground,
+                  ),
+                ),
+              ),
+              Text(
+                context.watch<ToDoProvider>().name,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: color.onBackground,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  "G-Mail",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color.onBackground,
+                  ),
+                ),
+              ),
+              Text(
+                context.watch<ToDoProvider>().email,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: color.onBackground,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  "Mobile",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color.onBackground,
+                  ),
+                ),
+              ),
+              Text(
+                context.watch<ToDoProvider>().number,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: color.onBackground,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 Future<void> logoutDialog(BuildContext context) async {
@@ -404,9 +424,17 @@ class MyTile extends StatefulWidget {
   const MyTile({
     super.key,
     required this.todo,
+    this.onIconButtonTap,
+    this.onTileTap,
+    required this.icon,
+    required this.myDecoration,
   });
 
   final ToDo todo;
+  final void Function()? onIconButtonTap;
+  final void Function()? onTileTap;
+  final IconData icon;
+  final TextDecoration? myDecoration;
 
   @override
   State<MyTile> createState() => _MyTileState();
@@ -445,19 +473,18 @@ class _MyTileState extends State<MyTile> {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
-        onTap: () {
-          // provider.toggleItemSelection(provider.docList[widget.index]);
-        },
+        onTap: widget.onTileTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         tileColor: color.onInverseSurface,
         leading: Icon(
-          widget.todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+          widget.icon,
           color: color.onBackground,
         ),
         title: Text(
@@ -465,7 +492,7 @@ class _MyTileState extends State<MyTile> {
           style: TextStyle(
             fontSize: 16,
             color: color.onBackground,
-            decoration: widget.todo.isDone ? TextDecoration.lineThrough : null,
+            decoration: widget.myDecoration,
           ),
         ),
         trailing: Container(
@@ -483,10 +510,7 @@ class _MyTileState extends State<MyTile> {
             color: Colors.white,
             iconSize: 18,
             icon: const Icon(Icons.delete),
-            onPressed: () async {
-              // provider.deleteToDoItem(
-              //     widget.index, provider.docList[widget.index].id);
-            },
+            onPressed: widget.onIconButtonTap,
           ),
         ),
         subtitle: Text(widget.todo.date.toString()),

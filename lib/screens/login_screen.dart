@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class LogInScreen extends StatefulWidget {
@@ -27,6 +29,7 @@ class _LogInScreenState extends State<LogInScreen> {
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
     final signUpProvider = context.watch<SignupProvider>();
+    final provider = Provider.of<ToDoProvider>(context);
 
     return Scaffold(
       backgroundColor: color.background,
@@ -181,9 +184,24 @@ class _LogInScreenState extends State<LogInScreen> {
                 decoration: BoxDecoration(
                     border: Border.all(color: color.onBackground),
                     borderRadius: BorderRadius.circular(25)),
-                child: TextButton(
-                    onPressed: () {},
-                    child: Text(
+                child: TextButton.icon(
+                    onPressed: () {
+                      final user = FirebaseAuth.instance.currentUser;
+                      provider.googleLogin();
+                      if (user != null) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Home(),
+                            ),
+                            (route) => false);
+                      }
+                    },
+                    icon: const FaIcon(
+                      FontAwesomeIcons.google,
+                      color: Colors.red,
+                    ),
+                    label: Text(
                       "SignUp with google",
                       style: TextStyle(fontSize: 20, color: color.onBackground),
                     )),
