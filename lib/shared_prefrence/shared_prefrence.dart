@@ -6,8 +6,8 @@ enum StorageKeys {
   email,
 }
 
-class SharedPrefrencess {
-  SharedPrefrencess._();
+class CustomSharedPrefrences {
+  CustomSharedPrefrences._();
 
   static Future<void> setString(StorageKeys key, String value) async {
     final prefs = await SharedPreferences.getInstance();

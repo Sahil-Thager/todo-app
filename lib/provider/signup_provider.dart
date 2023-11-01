@@ -16,15 +16,15 @@ class SignupProvider extends BaseChangeNotifier {
     try {
       loadingState();
 
-      await SharedPrefrencess.setString(
+      await CustomSharedPrefrences.setString(
         StorageKeys.email,
         _emailController.text,
       );
-      await SharedPrefrencess.setString(
+      await CustomSharedPrefrences.setString(
         StorageKeys.name,
         _nameController.text,
       );
-      await SharedPrefrencess.setString(
+      await CustomSharedPrefrences.setString(
         StorageKeys.number,
         _numberController.text,
       );
@@ -33,5 +33,15 @@ class SignupProvider extends BaseChangeNotifier {
     } catch (e) {
       failureState(e.toString());
     }
+  }
+
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
+  // Method to set loading state
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 }

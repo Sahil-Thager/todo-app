@@ -8,7 +8,7 @@ import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
-import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../constants/colors.dart';
 
@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await context.read<ToDoProvider>().getData();
       if (!context.mounted) return;
-      await context.read<ToDoProvider>().todosData();
+      await context.read<ToDoProvider>().getUserProfileData();
     });
     super.initState();
   }
@@ -254,6 +254,7 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     final color = Theme.of(context).colorScheme;
+    final provider = Provider.of<ToDoProvider>(context);
 
     return AppBar(
       iconTheme: IconThemeData(color: color.onBackground),
@@ -268,17 +269,15 @@ class _HomeState extends State<Home> {
             onTap: () {
               _showDialog(context);
             },
-            child: Consumer(
-              builder: (context, value, child) {
-                final email = context.watch<ToDoProvider>().email;
 
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: CircleAvatar(
-                    child: Text(email.isNotEmpty ? email[0] : "O"),
-                  ),
-                );
-              },
+            //  name = provider.profile?["profile"]["Name"];
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: CircleAvatar(
+                child: Text(provider.profile?["profile"]["Name"][0] ??
+                    provider.user?.displayName?[0] ??
+                    "null"),
+              ),
             ),
           ),
         ),
@@ -289,7 +288,8 @@ class _HomeState extends State<Home> {
 
 Future<void> _showDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
-  context.read<ToDoProvider>().getData();
+  // context.read<ToDoProvider>().getData();
+  final provider = Provider.of<ToDoProvider>(context, listen: false);
 
   return showDialog(
     context: context,
@@ -308,9 +308,9 @@ Future<void> _showDialog(BuildContext context) async {
                 backgroundColor: color.background,
                 radius: 50,
                 child: Text(
-                  context.watch<ToDoProvider>().email.isNotEmpty
-                      ? context.watch<ToDoProvider>().email[0]
-                      : "o",
+                  provider.profile?["profile"]["Name"][0] ??
+                      provider.user?.displayName?[0] ??
+                      "null",
                   style: TextStyle(
                     color: color.onBackground,
                   ),
@@ -327,7 +327,9 @@ Future<void> _showDialog(BuildContext context) async {
                 ),
               ),
               Text(
-                context.watch<ToDoProvider>().name,
+                provider.profile?["profile"]["Name"] ??
+                    provider.user?.displayName ??
+                    "null",
                 style: TextStyle(
                   fontSize: 15,
                   color: color.onBackground,
@@ -344,7 +346,9 @@ Future<void> _showDialog(BuildContext context) async {
                 ),
               ),
               Text(
-                context.watch<ToDoProvider>().email,
+                provider.profile?["profile"]["Email"] ??
+                    provider.user?.email ??
+                    "null",
                 style: TextStyle(
                   fontSize: 15,
                   color: color.onBackground,
@@ -361,7 +365,9 @@ Future<void> _showDialog(BuildContext context) async {
                 ),
               ),
               Text(
-                context.watch<ToDoProvider>().number,
+                provider.profile?["profile"]["Mobile"] ??
+                    provider.user?.phoneNumber ??
+                    "null",
                 style: TextStyle(
                   fontSize: 15,
                   color: color.onBackground,
@@ -377,7 +383,6 @@ Future<void> _showDialog(BuildContext context) async {
 
 Future<void> logoutDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
-  final auth = FirebaseAuth.instance;
 
   return showDialog(
     context: context,
@@ -402,9 +407,11 @@ Future<void> logoutDialog(BuildContext context) async {
               child: const Text("No"),
             ),
             TextButton(
-              onPressed: () {
-                SharedPrefrencess.remove();
-                auth.signOut();
+              onPressed: () async {
+                final GoogleSignIn googleSignIn = GoogleSignIn();
+                await FirebaseAuth.instance.signOut();
+                await googleSignIn.signOut();
+                if (!context.mounted) return;
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                   builder: (context) {
                     return const LogInScreen();
@@ -446,10 +453,15 @@ class _MyTileState extends State<MyTile> {
   @override
   void initState() {
     notificationServices.intialiseNotification();
+    context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
 
     super.initState();
 
     sss(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
+    ss(() {
       notificationServices.sendNotification(
           widget.todo.todoText.toString(), widget.todo.date.toString());
     });
@@ -462,8 +474,19 @@ class _MyTileState extends State<MyTile> {
 
       if (timeDifference.inSeconds <= 600 &&
           todo.triggerNotification10 == false) {
-        context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
+        callback.call();
+        timer.cancel();
+      }
+    });
+  }
 
+  void ss(VoidCallback callback) {
+    final todo = widget.todo;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (timeDifference.inSeconds <= 3600 &&
+          todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();
       }

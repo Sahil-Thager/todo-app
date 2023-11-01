@@ -124,9 +124,10 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   Future<void> getData() async {
-    _name = await SharedPrefrencess.getString(StorageKeys.name);
-    _email = await SharedPrefrencess.getString(StorageKeys.email);
-    _number = await SharedPrefrencess.getString(StorageKeys.number);
+    _name = await CustomSharedPrefrences.getString(StorageKeys.name);
+    _email = await CustomSharedPrefrences.getString(StorageKeys.email);
+    _number = await CustomSharedPrefrences.getString(StorageKeys.number);
+    log('Get  data ran');
     notifyListeners();
   }
 
@@ -137,6 +138,7 @@ class ToDoProvider extends ChangeNotifier {
         .orderBy("timestamp", descending: false)
         .get();
     filteredList = docList = ss.docs;
+    log("this is run");
     notifyListeners();
   }
 
@@ -158,28 +160,81 @@ class ToDoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final googleSignIn = GoogleSignIn();
+  User? user;
 
-  GoogleSignInAccount? _user;
+  Future<User?> signInWithGoogle() async {
+    final GoogleSignInAccount? googleSignInAccount =
+        await GoogleSignIn().signIn();
 
-  GoogleSignInAccount get user => _user!;
+    if (googleSignInAccount == null) {
+      return null;
+    }
 
-  Future googleLogin() async {
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) return;
-
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
     );
 
-    final userCredential =
+    final UserCredential authResult =
         await FirebaseAuth.instance.signInWithCredential(credential);
-    userCredential;
-    log(userCredential.user!.displayName.toString());
-    log(userCredential.user!.email.toString());
+    user = authResult.user;
 
+    if (user != null) {
+      log('User signed in: ${user?.displayName ?? "null"}');
+    } else {
+      log('Sign-in failed');
+    }
+
+    return user;
+  }
+
+  Future<void> signout() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+      } else {
+        await auth.signOut();
+      }
+    } catch (e) {
+      log('Error signing out: $e');
+    }
+  }
+
+  Future<void> setUserProfileData(
+      String id, String nam, String mail, String no, String pass) async {
+    await fireStore.doc(id).set({
+      'profile': {
+        "Name": nam,
+        "Mobile": mail,
+        "Email": no,
+        "Password": pass,
+        "uid": id,
+      },
+    });
+    notifyListeners();
+  }
+
+  Future<void> signOutGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await FirebaseAuth.instance.signOut();
+    await googleSignIn.signOut();
+  }
+  // Future<void> setDataWithGoogle() async{
+  // final User? user = authResult.user;
+
+  // }
+
+  Map<String, dynamic>? profile;
+  Future<void> getUserProfileData() async {
+    final data = await fireStore.doc(_email).get();
+    profile = data.data();
+    log(list.toString());
+    log(data.toString());
     notifyListeners();
   }
 }

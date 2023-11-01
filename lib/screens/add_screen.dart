@@ -26,27 +26,23 @@ class _NewListState extends State<NewList> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(
-                top: 30,
-                left: 25,
-                right: 25,
-              ),
-              child:
-                  Consumer<ToDoProvider>(builder: (context, provider, child) {
-                return TextField(
-                  controller: provider.listController,
-                  decoration: InputDecoration(
-                    hintText: "Add New ToDo",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () => provider.selectDateTime(context),
-                    ),
-                  ),
-                );
-              }),
-            ),
+                padding: const EdgeInsets.only(
+                  top: 30,
+                  left: 25,
+                  right: 25,
+                ),
+                child: TextField(
+                    controller: addTodoProvider.listController,
+                    decoration: InputDecoration(
+                      hintText: "Add New ToDo",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () =>
+                            addTodoProvider.selectDateTime(context),
+                      ),
+                    ))),
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: ElevatedButton(

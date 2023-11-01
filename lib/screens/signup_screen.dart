@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/provider/list_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
@@ -33,6 +34,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
     final signUpProvider = context.watch<SignupProvider>();
+    final todoProvider = context.watch<ToDoProvider>();
 
     return Scaffold(
       backgroundColor: color.background,
@@ -157,26 +159,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         .then((value) =>
                             Utils.showSnackbar("Signup Successfully", context))
                         .then((value) async {
-                      String id = signUpProvider.emailController.text;
-
-                      fireStore.doc(id).set({
-                        'profile': {
-                          "Name": signUpProvider.nameController.text,
-                          "Mobile": signUpProvider.numberController.text,
-                          "Email": signUpProvider.emailController.text,
-                          "Password": passwordController.text,
-                          "uid": id,
-                        },
-                      }).onError((error, stackTrace) {
-                        log("$stackTrace");
-                      });
-
-                      final aa = await fireStore.doc(id).get();
-                      final ff = aa.data();
-                      ff;
+                      todoProvider.setUserProfileData(
+                          signUpProvider.emailController.text,
+                          signUpProvider.nameController.text,
+                          signUpProvider.emailController.text,
+                          signUpProvider.numberController.text,
+                          passwordController.text);
                     }).onError((error, stackTrace) {
                       log("$stackTrace");
-                      Utils.showSnackbar(error.toString(), context);
                     }).then(
                       (value) {
                         Navigator.push(
