@@ -1,9 +1,10 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/common/common_textfield.dart';
+import 'package:flutter_todo_app/constants/validator.dart';
+import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
@@ -17,10 +18,6 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  // final Map<String, dynamic> profileData = {
-  //   'name': 'John Doe',
-  //   'email': 'john@example.com',
-  // };
   TextEditingController passwordController = TextEditingController();
 
   final fireStore = FirebaseFirestore.instance.collection("User Record");
@@ -51,81 +48,47 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: color.onInverseSurface,
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(15)),
-              child: TextFormField(
-                focusNode: nameFocusNode,
-                controller: signUpProvider.nameController,
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Enter Name",
-                    contentPadding: EdgeInsetsDirectional.all(8)),
-                onFieldSubmitted: (value) {
-                  return FocusScope.of(context).requestFocus(numberFocusNode);
-                },
-              ),
-            ),
+            child: SizedBox(
+                height: 50,
+                child: CommonTextFormField(
+                  controller: signUpProvider.nameController,
+                  hintText: "Enter Name",
+                  textInputAction: TextInputAction.next,
+                  contentPadding: const EdgeInsets.only(
+                    left: 10,
+                  ),
+                )),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: color.onInverseSurface,
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(15)),
-              child: TextFormField(
-                focusNode: numberFocusNode,
+              padding: const EdgeInsets.all(12),
+              child: CommonTextFormField(
                 controller: signUpProvider.numberController,
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Enter Mobile Number",
-                    contentPadding: EdgeInsetsDirectional.all(8)),
-                onFieldSubmitted: (value) {
-                  return FocusScope.of(context).requestFocus(emailFocusNode);
-                },
-              ),
-            ),
-          ),
+                hintText: "Enter Number",
+                textInputAction: TextInputAction.next,
+                contentPadding: const EdgeInsets.only(left: 10),
+              )),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: color.onInverseSurface,
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(15)),
-              child: TextFormField(
-                focusNode: emailFocusNode,
+              padding: const EdgeInsets.all(12),
+              child: CommonTextFormField(
                 controller: signUpProvider.emailController,
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Enter Email",
-                    contentPadding: EdgeInsetsDirectional.all(8)),
-                onFieldSubmitted: (value) {
-                  return FocusScope.of(context).requestFocus(passwordFocusNode);
-                },
-              ),
-            ),
-          ),
+                hintText: "Enter Email",
+                textInputAction: TextInputAction.next,
+                contentPadding: const EdgeInsets.only(
+                  left: 10,
+                ),
+              )),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: color.onInverseSurface,
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(15)),
-              child: TextFormField(
-                focusNode: passwordFocusNode,
+              padding: const EdgeInsets.all(12),
+              child: CommonTextFormField(
                 controller: passwordController,
-                decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Enter Password",
-                    contentPadding: EdgeInsetsDirectional.all(8)),
-              ),
-            ),
-          ),
+                hintText: "Enter Password",
+                validator: (value) =>
+                    Validator.validatePassword(passwordController.text),
+                textInputAction: TextInputAction.next,
+                contentPadding: const EdgeInsets.only(
+                  left: 10,
+                ),
+              )),
           Padding(
             padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
             child: Container(
@@ -165,6 +128,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           signUpProvider.emailController.text,
                           signUpProvider.numberController.text,
                           passwordController.text);
+                    }).then((value) async {
+                      await context.read<ToDoProvider>().getUserProfileData();
                     }).onError((error, stackTrace) {
                       log("$stackTrace");
                     }).then(

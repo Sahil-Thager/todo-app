@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/firebase_options.dart';
-import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/screens/home.dart';

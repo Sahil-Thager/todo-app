@@ -154,12 +154,6 @@ class ToDoProvider extends ChangeNotifier {
     await todosData();
   }
 
-  Future<void> profileData() async {
-    final aa = await fireStore.doc(_email).collection("profiles").get();
-    profileList = aa.docs;
-    notifyListeners();
-  }
-
   User? user;
 
   Future<User?> signInWithGoogle() async {
@@ -190,21 +184,6 @@ class ToDoProvider extends ChangeNotifier {
     return user;
   }
 
-  Future<void> signout() async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
-    try {
-      if (await googleSignIn.isSignedIn()) {
-        await googleSignIn.signOut();
-      } else {
-        await auth.signOut();
-      }
-    } catch (e) {
-      log('Error signing out: $e');
-    }
-  }
-
   Future<void> setUserProfileData(
       String id, String nam, String mail, String no, String pass) async {
     await fireStore.doc(id).set({
@@ -218,16 +197,6 @@ class ToDoProvider extends ChangeNotifier {
     });
     notifyListeners();
   }
-
-  Future<void> signOutGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    await FirebaseAuth.instance.signOut();
-    await googleSignIn.signOut();
-  }
-  // Future<void> setDataWithGoogle() async{
-  // final User? user = authResult.user;
-
-  // }
 
   Map<String, dynamic>? profile;
   Future<void> getUserProfileData() async {

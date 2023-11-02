@@ -15,7 +15,6 @@ class SignupProvider extends BaseChangeNotifier {
   Future<void> saveData() async {
     try {
       loadingState();
-
       await CustomSharedPrefrences.setString(
         StorageKeys.email,
         _emailController.text,

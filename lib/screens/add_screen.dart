@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/provider/list_provider.dart';
+import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:provider/provider.dart';
 
 class NewList extends StatefulWidget {
