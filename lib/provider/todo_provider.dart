@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/model/variables_model.dart';
+import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -214,8 +215,8 @@ class ToDoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String selectedDropdownValue = 'tenMinute';
-  void onDropdownValueChanged(String value) {
+  var selectedDropdownValue = SelectTime.tenMinutes;
+  void onDropdownValueChanged(final value) {
     selectedDropdownValue = value;
     log("drop value -- ${value}");
     notifyListeners();

@@ -8,7 +8,6 @@ import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
-import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:google_sign_in/google_sign_in.dart';

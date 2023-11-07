@@ -6,7 +6,6 @@ import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
-import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
