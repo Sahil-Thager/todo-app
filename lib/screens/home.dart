@@ -27,6 +27,8 @@ class _HomeState extends State<Home> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await context.read<ToDoProvider>().getData();
+      if (!context.mounted) return;
+      await context.read<ToDoProvider>().getUserMail();
 
       if (!context.mounted) return;
       await context.read<ToDoProvider>().getUserProfileData();
@@ -144,6 +146,7 @@ class _HomeState extends State<Home> {
 Future<void> logoutDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
   final theme = Provider.of<ThemeProvider>(context, listen: false);
+
   return showDialog(
     context: context,
     builder: (context) {

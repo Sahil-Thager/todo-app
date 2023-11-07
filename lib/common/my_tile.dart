@@ -5,6 +5,7 @@ import 'package:flutter_todo_app/constants/colors.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
+import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyTile extends StatefulWidget {
@@ -52,11 +53,13 @@ class _MyTileState extends State<MyTile> {
   }
 
   void notificationOn10minutes(VoidCallback callback) {
+    final provider = Provider.of<ToDoProvider>(context, listen: false);
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 600 &&
+      if (provider.selectedDropdownValue == SelectTime.tenMinutes &&
+          timeDifference.inSeconds <= 600 &&
           todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();
@@ -65,11 +68,14 @@ class _MyTileState extends State<MyTile> {
   }
 
   void notificationOn1Hour(VoidCallback callback) {
+    final provider = Provider.of<ToDoProvider>(context, listen: false);
+
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 3600 &&
+      if (provider.selectedDropdownValue == SelectTime.oneHour &&
+          timeDifference.inSeconds <= 3600 &&
           todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();
@@ -79,10 +85,13 @@ class _MyTileState extends State<MyTile> {
 
   void notificationOn1Day(VoidCallback callback) {
     final todo = widget.todo;
+    final provider = Provider.of<ToDoProvider>(context, listen: false);
+
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 86400 &&
+      if (provider.selectedDropdownValue == SelectTime.oneDay &&
+          timeDifference.inSeconds <= 86400 &&
           todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();

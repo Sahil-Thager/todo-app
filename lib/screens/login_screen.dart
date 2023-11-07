@@ -28,6 +28,13 @@ class _LogInScreenState extends State<LogInScreen> {
 
   final _formkey = GlobalKey<FormState>();
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
     final signUpProvider = context.watch<SignupProvider>();
@@ -195,6 +202,7 @@ class _LogInScreenState extends State<LogInScreen> {
                       child: TextButton.icon(
                           onPressed: () async {
                             User? user = await provider.signInWithGoogle();
+                            context.read<ToDoProvider>().saveUserMail();
                             provider.setUserProfileData(
                               id: user?.email,
                               nam: user?.displayName,

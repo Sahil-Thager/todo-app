@@ -7,6 +7,7 @@ import 'package:flutter_todo_app/model/variables_model.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ToDoProvider extends ChangeNotifier {
   ToDoProvider() {
@@ -57,7 +58,7 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> toggleItemSelection(
       QueryDocumentSnapshot<Map<String, dynamic>> data) async {
     await fireStore
-        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+        .doc(_email!.isEmpty ? mm ?? "" : _email)
         .collection('todos')
         .doc(data.id)
         .update({"isDone": !data.data()["isDone"]});
@@ -68,7 +69,7 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> toggleOffNotification(String id) async {
     try {
       await fireStore
-          .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+          .doc(_email!.isEmpty ? mm ?? "" : _email)
           .collection('todos')
           .doc(id)
           .update({"notificationTrigger10": true});
@@ -80,7 +81,7 @@ class ToDoProvider extends ChangeNotifier {
 
   Future<void> deleteToDoItem(index, id) async {
     final aa = fireStore
-        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+        .doc(_email!.isEmpty ? mm ?? "" : _email)
         .collection('todos')
         .doc(id);
     aa.delete();
@@ -137,7 +138,7 @@ class ToDoProvider extends ChangeNotifier {
 
   Future<void> todosData() async {
     final ss = await fireStore
-        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+        .doc(_email!.isEmpty ? mm ?? "" : _email)
         .collection('todos')
         .orderBy("timestamp", descending: false)
         .get();
@@ -148,10 +149,7 @@ class ToDoProvider extends ChangeNotifier {
 
   bool notifi = false;
   Future<void> firebaseData() async {
-    fireStore
-        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
-        .collection('todos')
-        .add({
+    fireStore.doc(_email!.isEmpty ? mm ?? "" : _email).collection('todos').add({
       "title": listController.text,
       "time": selectedDateTime,
       "isDone": isDone,
@@ -207,8 +205,7 @@ class ToDoProvider extends ChangeNotifier {
 
   Map<String, dynamic>? profile;
   Future<void> getUserProfileData() async {
-    final data =
-        await fireStore.doc(_email!.isEmpty ? user?.email ?? "" : _email).get();
+    final data = await fireStore.doc(_email!.isEmpty ? mm ?? "" : _email).get();
     profile = data.data();
     log(list.toString());
     log(data.toString());
@@ -218,7 +215,23 @@ class ToDoProvider extends ChangeNotifier {
   var selectedDropdownValue = SelectTime.tenMinutes;
   void onDropdownValueChanged(final value) {
     selectedDropdownValue = value;
-    log("drop value -- ${value}");
+    log("drop value -- ${selectedDropdownValue}");
+    notifyListeners();
+  }
+
+  String? mm;
+
+  Future<void> saveUserMail() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("userMail", user?.email ?? "");
+    log("run");
+    notifyListeners();
+  }
+
+  Future<void> getUserMail() async {
+    final prefs = await SharedPreferences.getInstance();
+    mm = prefs.getString("userMail");
+    log("run");
     notifyListeners();
   }
 }
