@@ -23,6 +23,7 @@ class SignupProvider extends BaseChangeNotifier {
         StorageKeys.name,
         _nameController.text,
       );
+
       await CustomSharedPrefrences.setString(
         StorageKeys.number,
         _numberController.text,
@@ -38,7 +39,6 @@ class SignupProvider extends BaseChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  // Method to set loading state
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class CustomOutlineButton extends StatefulWidget {
+class CommonButton extends StatefulWidget {
   final String text;
   final Color color;
   final Color textColor;
   final int fontSize;
   final Function onPressed;
   final Image? image;
-  const CustomOutlineButton(
+  const CommonButton(
       {super.key,
       required this.onPressed,
       required this.text,
@@ -17,10 +17,10 @@ class CustomOutlineButton extends StatefulWidget {
       this.image});
 
   @override
-  State<CustomOutlineButton> createState() => _CustomOutlineButtonState();
+  State<CommonButton> createState() => _CommonButtonState();
 }
 
-class _CustomOutlineButtonState extends State<CustomOutlineButton> {
+class _CommonButtonState extends State<CommonButton> {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;

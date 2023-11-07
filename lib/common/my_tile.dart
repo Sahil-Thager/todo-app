@@ -29,6 +29,9 @@ class MyTile extends StatefulWidget {
 
 class _MyTileState extends State<MyTile> {
   NotificationServices notificationServices = NotificationServices();
+  String selectedDropdownValue = 'tenMinute';
+  String selectedDropdownValue1 = 'oneHour';
+  String selectedDropdownValue2 = 'oneDay';
 
   @override
   void initState() {
@@ -45,6 +48,10 @@ class _MyTileState extends State<MyTile> {
       notificationServices.sendNotification(
           widget.todo.todoText.toString(), widget.todo.date.toString());
     });
+    notificationOn1Day(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
   }
 
   void notificationOn10minutes(VoidCallback callback) {
@@ -52,7 +59,8 @@ class _MyTileState extends State<MyTile> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 600 &&
+      if (selectedDropdownValue == "tenMinute" &&
+          timeDifference.inSeconds <= 600 &&
           todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();
@@ -65,7 +73,22 @@ class _MyTileState extends State<MyTile> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (timeDifference.inSeconds <= 3600 &&
+      if (selectedDropdownValue1 == "oneHour" &&
+          timeDifference.inSeconds <= 3600 &&
+          todo.triggerNotification10 == false) {
+        callback.call();
+        timer.cancel();
+      }
+    });
+  }
+
+  void notificationOn1Day(VoidCallback callback) {
+    final todo = widget.todo;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (selectedDropdownValue1 == "oneDay" &&
+          timeDifference.inSeconds <= 86400 &&
           todo.triggerNotification10 == false) {
         callback.call();
         timer.cancel();

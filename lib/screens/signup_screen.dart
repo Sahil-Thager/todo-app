@@ -6,6 +6,7 @@ import 'package:flutter_todo_app/common/common_textfield.dart';
 import 'package:flutter_todo_app/constants/validator.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
+import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -123,11 +124,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             Utils.showSnackbar("Signup Successfully", context))
                         .then((value) async {
                       todoProvider.setUserProfileData(
-                          signUpProvider.emailController.text,
-                          signUpProvider.nameController.text,
-                          signUpProvider.emailController.text,
-                          signUpProvider.numberController.text,
-                          passwordController.text);
+                          id: signUpProvider.emailController.text,
+                          nam: signUpProvider.nameController.text,
+                          mail: signUpProvider.emailController.text,
+                          no: signUpProvider.numberController.text,
+                          pass: passwordController.text);
                     }).then((value) async {
                       await context.read<ToDoProvider>().getUserProfileData();
                     }).onError((error, stackTrace) {
@@ -138,7 +139,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return const LogInScreen();
+                              return const BottomNavScreen();
                             },
                           ),
                         );

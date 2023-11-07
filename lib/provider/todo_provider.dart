@@ -34,15 +34,15 @@ class ToDoProvider extends ChangeNotifier {
   String _name = '';
   String get name => _name;
 
-  String _email = '';
-  String get email => _email;
+  String? _email = '';
+  String? get email => _email;
 
   String _number = '';
   String get number => _number;
 
   void filter(String text) async {
     filteredList = docList.where(
-      (element) => element["title"].contains(text),
+      (element) => element["title".toLowerCase()].contains(text.toLowerCase()),
     );
     notifyListeners();
   }
@@ -56,7 +56,7 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> toggleItemSelection(
       QueryDocumentSnapshot<Map<String, dynamic>> data) async {
     await fireStore
-        .doc(_email)
+        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
         .collection('todos')
         .doc(data.id)
         .update({"isDone": !data.data()["isDone"]});
@@ -67,7 +67,7 @@ class ToDoProvider extends ChangeNotifier {
   Future<void> toggleOffNotification(String id) async {
     try {
       await fireStore
-          .doc(_email)
+          .doc(_email!.isEmpty ? user?.email ?? "" : _email)
           .collection('todos')
           .doc(id)
           .update({"notificationTrigger10": true});
@@ -78,7 +78,10 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   Future<void> deleteToDoItem(index, id) async {
-    final aa = fireStore.doc(_email).collection('todos').doc(id);
+    final aa = fireStore
+        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+        .collection('todos')
+        .doc(id);
     aa.delete();
     docList.removeAt(index);
     notifyListeners();
@@ -133,7 +136,7 @@ class ToDoProvider extends ChangeNotifier {
 
   Future<void> todosData() async {
     final ss = await fireStore
-        .doc(_email)
+        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
         .collection('todos')
         .orderBy("timestamp", descending: false)
         .get();
@@ -144,7 +147,10 @@ class ToDoProvider extends ChangeNotifier {
 
   bool notifi = false;
   Future<void> firebaseData() async {
-    fireStore.doc(_email).collection('todos').add({
+    fireStore
+        .doc(_email!.isEmpty ? user?.email ?? "" : _email)
+        .collection('todos')
+        .add({
       "title": listController.text,
       "time": selectedDateTime,
       "isDone": isDone,
@@ -185,7 +191,7 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   Future<void> setUserProfileData(
-      String id, String nam, String mail, String no, String pass) async {
+      {String? id, String? nam, String? mail, String? no, String? pass}) async {
     await fireStore.doc(id).set({
       'profile': {
         "Name": nam,
@@ -200,10 +206,18 @@ class ToDoProvider extends ChangeNotifier {
 
   Map<String, dynamic>? profile;
   Future<void> getUserProfileData() async {
-    final data = await fireStore.doc(_email).get();
+    final data =
+        await fireStore.doc(_email!.isEmpty ? user?.email ?? "" : _email).get();
     profile = data.data();
     log(list.toString());
     log(data.toString());
+    notifyListeners();
+  }
+
+  String selectedDropdownValue = 'tenMinute';
+  void onDropdownValueChanged(String value) {
+    selectedDropdownValue = value;
+    log("drop value -- ${value}");
     notifyListeners();
   }
 }

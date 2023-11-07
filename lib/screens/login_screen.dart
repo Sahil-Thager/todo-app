@@ -6,6 +6,7 @@ import 'package:flutter_todo_app/common/common_textfield.dart';
 import 'package:flutter_todo_app/constants/validator.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
+import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/signup_screen.dart';
 import 'package:flutter_todo_app/utils/utils.dart';
@@ -69,7 +70,7 @@ class _LogInScreenState extends State<LogInScreen> {
                           return null;
                         }),
                         prefixIcon: const Icon(Icons.email_outlined),
-                        hintText: "Enter Login id",
+                        hintText: "Enter Email",
                         textInputAction: TextInputAction.next),
                   ),
                   Padding(
@@ -96,8 +97,9 @@ class _LogInScreenState extends State<LogInScreen> {
                           border: Border.all(color: color.onBackground),
                           borderRadius: BorderRadius.circular(25)),
                       child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             context.read<SignupProvider>().saveData();
+
                             if (_formkey.currentState!.validate()) {
                               sProvider.setLoading(true);
 
@@ -106,15 +108,12 @@ class _LogInScreenState extends State<LogInScreen> {
                                       email:
                                           signUpProvider.emailController.text,
                                       password: passwordController.text)
-                                  .then((value) async {
-                                await context
-                                    .read<ToDoProvider>()
-                                    .getUserProfileData();
-                              }).then((value) {
+                                  .then((value) {
                                 Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const Home(),
+                                      builder: (context) =>
+                                          const BottomNavScreen(),
                                     ),
                                     (route) => false);
                               }).catchError((e) {
@@ -122,9 +121,8 @@ class _LogInScreenState extends State<LogInScreen> {
                                   switch (e.code) {
                                     case 'INVALID_LOGIN_CREDENTIALS':
                                       Utils.showSnackbar(
-                                        'Incorrect username or password',
-                                        context,
-                                      );
+                                          'Incorrect username or password',
+                                          context);
 
                                       break;
                                     case 'VALID_LOGIN_CREDENTIALS':
@@ -198,12 +196,19 @@ class _LogInScreenState extends State<LogInScreen> {
                       child: TextButton.icon(
                           onPressed: () async {
                             User? user = await provider.signInWithGoogle();
+                            provider.setUserProfileData(
+                              id: user?.email,
+                              nam: user?.displayName,
+                              mail: user?.email,
+                              no: user?.phoneNumber,
+                            );
                             if (user != null) {
                               if (!context.mounted) return;
                               Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const Home(),
+                                    builder: (context) =>
+                                        const BottomNavScreen(),
                                   ),
                                   (route) => false);
                             } else {

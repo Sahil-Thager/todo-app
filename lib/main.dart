@@ -5,6 +5,7 @@ import 'package:flutter_todo_app/firebase_options.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
+import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
-      home: _auth.currentUser != null ? const Home() : const LogInScreen(),
+      home: _auth.currentUser != null
+          ? const BottomNavScreen()
+          : const LogInScreen(),
       themeMode: provider.themeMode,
       theme: ThemeData(brightness: Brightness.light, useMaterial3: true),
       darkTheme: ThemeData(brightness: Brightness.dark, useMaterial3: true),

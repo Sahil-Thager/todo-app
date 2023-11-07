@@ -1,13 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class ThemeNotifier with ChangeNotifier {
-//   bool _isDarkMode = false;
-//   bool get isDarkMode => _isDarkMode;
-//   void setTheme() async {
-//     _isDarkMode = !_isDarkMode;
-//     notifyListeners();
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,5 +26,18 @@ class ThemeProvider with ChangeNotifier {
   Future<void> _saveThemeMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('theme_mode', _themeMode.index);
+  }
+
+  Future<void> remove() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove("theme_mode");
+    notifyListeners();
+  }
+
+  void logout() {
+    _themeMode = ThemeMode.system;
+    _saveThemeMode();
+
+    notifyListeners();
   }
 }

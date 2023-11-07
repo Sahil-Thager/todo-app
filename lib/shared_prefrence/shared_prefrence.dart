@@ -4,6 +4,7 @@ enum StorageKeys {
   name,
   number,
   email,
+  userEmail,
 }
 
 class CustomSharedPrefrences {

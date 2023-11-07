@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/common/drawer.dart';
 import 'package:flutter_todo_app/common/my_tile.dart';
 import 'package:flutter_todo_app/constants/home_appbar.dart';
 import 'package:flutter_todo_app/model/todo.dart';
+import 'package:flutter_todo_app/notifications/notification_services.dart';
+import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
+import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +22,18 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  NotificationServices notificationServices = NotificationServices();
+  ToDo? todo;
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await context.read<ToDoProvider>().getData();
+
       if (!context.mounted) return;
       await context.read<ToDoProvider>().getUserProfileData();
+
+      if (!context.mounted) return;
+      await context.read<ToDoProvider>().todosData();
     });
     super.initState();
   }
@@ -43,11 +51,7 @@ class _HomeState extends State<Home> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: color.onSecondary,
-              ),
+            SizedBox(
               height: 40,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -115,9 +119,6 @@ class _HomeState extends State<Home> {
                                     index, provider.docList[index].id);
                               },
                               onTileTap: () {
-                                log(index.toString());
-                                log(provider.docList[index].id.toString());
-
                                 provider.toggleItemSelection(
                                     provider.docList[index]);
                               },
@@ -134,15 +135,6 @@ class _HomeState extends State<Home> {
                 },
               ),
             ),
-            FloatingActionButton(
-              onPressed: () async {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (builder) => const NewList()));
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.add),
-            )
           ],
         ),
       ),
@@ -152,7 +144,7 @@ class _HomeState extends State<Home> {
 
 Future<void> logoutDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
-
+  final theme = Provider.of<ThemeProvider>(context, listen: false);
   return showDialog(
     context: context,
     builder: (context) {
@@ -177,6 +169,8 @@ Future<void> logoutDialog(BuildContext context) async {
             ),
             TextButton(
               onPressed: () async {
+                theme.logout();
+                CustomSharedPrefrences.remove();
                 final GoogleSignIn googleSignIn = GoogleSignIn();
                 await FirebaseAuth.instance.signOut();
                 await googleSignIn.signOut();
