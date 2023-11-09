@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/common/common_textfield.dart';
 import 'package:flutter_todo_app/common/drawer.dart';
 import 'package:flutter_todo_app/common/my_tile.dart';
 import 'package:flutter_todo_app/constants/home_appbar.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
+import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
@@ -21,7 +23,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  NotificationServices notificationServices = NotificationServices();
   ToDo? todo;
   @override
   void initState() {
@@ -56,29 +57,22 @@ class _HomeState extends State<Home> {
               height: 40,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: TextField(
+                child: CommonTextFormField(
                   onChanged: (text) {
                     context.read<ToDoProvider>().filter(text);
                   },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(bottom: 10),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Icon(
-                        Icons.search,
-                        color: color.outline,
-                        size: 20,
-                      ),
-                    ),
-                    prefixIconConstraints: const BoxConstraints(
-                      maxHeight: 20,
-                      minWidth: 25,
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    hintText: 'Search',
-                    hintStyle: TextStyle(color: color.onBackground),
+                  textInputAction: TextInputAction.done,
+                  contentPadding: const EdgeInsets.only(bottom: 10),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: color.outline,
+                    size: 20,
                   ),
+                  prefixIconConstraints: const BoxConstraints(
+                    maxHeight: 20,
+                    minWidth: 25,
+                  ),
+                  hintText: 'Search',
                 ),
               ),
             ),
@@ -116,8 +110,9 @@ class _HomeState extends State<Home> {
                                   ? Icons.check_box
                                   : Icons.check_box_outline_blank,
                               onIconButtonTap: () {
-                                provider.deleteToDoItem(
-                                    index, provider.docList[index].id);
+                                todoDelete(context, index).whenComplete(() {
+                                  provider.todosData();
+                                });
                               },
                               onTileTap: () {
                                 provider.toggleItemSelection(
@@ -146,7 +141,7 @@ class _HomeState extends State<Home> {
 Future<void> logoutDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
   final theme = Provider.of<ThemeProvider>(context, listen: false);
-
+  final sProvider = Provider.of<SignupProvider>(context, listen: false);
   return showDialog(
     context: context,
     builder: (context) {
@@ -172,6 +167,7 @@ Future<void> logoutDialog(BuildContext context) async {
             TextButton(
               onPressed: () async {
                 theme.logout();
+                sProvider.clearControllers();
                 CustomSharedPrefrences.remove();
                 final GoogleSignIn googleSignIn = GoogleSignIn();
                 await FirebaseAuth.instance.signOut();
@@ -184,6 +180,50 @@ Future<void> logoutDialog(BuildContext context) async {
                 ), (route) => false);
               },
               child: const Text("Logout"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<void> todoDelete(BuildContext context, index) async {
+  final color = Theme.of(context).colorScheme;
+  final provider = Provider.of<ToDoProvider>(context, listen: false);
+  NotificationServices notificationServices = NotificationServices();
+
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(
+            "Do You Want to Delete",
+            style: TextStyle(color: color.onBackground, fontSize: 18),
+          ),
+        ),
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 40,
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                provider
+                    .deleteToDoItem(index, provider.docList[index].id)
+                    .then((value) =>
+                        notificationServices.cancelNotification(index))
+                    .then((value) => Navigator.pop(context));
+              },
+              child: const Text("Delete"),
             ),
           ],
         ),

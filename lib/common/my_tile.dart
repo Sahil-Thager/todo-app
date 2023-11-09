@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/constants/colors.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
@@ -132,7 +131,7 @@ class _MyTileState extends State<MyTile> {
           height: 35,
           width: 35,
           decoration: BoxDecoration(
-            color: tdRed,
+            color: Colors.red,
             borderRadius: BorderRadius.circular(5),
           ),
           child: IconButton(

@@ -22,6 +22,13 @@ class AddTodoScreen extends StatefulWidget {
 
 class _AddTodoScreenState extends State<AddTodoScreen> {
   DateTime selectedDateTime = DateTime.now();
+  TextEditingController listController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,58 +42,75 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         centerTitle: true,
         title: const Text("Add New ToDo"),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 30,
-                left: 25,
-                right: 25,
-              ),
-              child: TextField(
-                controller: addTodoProvider.listController,
-                decoration: InputDecoration(
-                  hintText: "Add New ToDo",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () => addTodoProvider.selectDateTime(context),
+      body: Form(
+        key: formKey,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 30,
+                  left: 25,
+                  right: 25,
+                ),
+                child: TextFormField(
+                  controller: listController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      {
+                        return "Please enter your todo";
+                      }
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Add New ToDo",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () => addTodoProvider.selectDateTime(context),
+                    ),
                   ),
                 ),
               ),
-            ),
-            DropdownButtonHideUnderline(
-              child: DropdownButton<SelectTime>(
-                value: context.watch<ToDoProvider>().selectedDropdownValue,
-                items: SelectTime.values.map((e) {
-                  return DropdownMenuItem<SelectTime>(
-                    value: e,
-                    child: Text(e.value),
-                  );
-                }).toList(),
-                onChanged: (value) =>
-                    context.read<ToDoProvider>().onDropdownValueChanged(value),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  addTodoProvider.firebaseData().then((value) => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BottomNavScreen(),
-                      )));
-                },
-                child: Text(
-                  "Add ToDo",
-                  style: TextStyle(color: color.onBackground),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<SelectTime>(
+                  value: context.watch<ToDoProvider>().selectedDropdownValue,
+                  items: SelectTime.values.map((e) {
+                    return DropdownMenuItem<SelectTime>(
+                      value: e,
+                      child: Text(e.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) => context
+                      .read<ToDoProvider>()
+                      .onDropdownValueChanged(value),
                 ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      addTodoProvider
+                          .firebaseData(listController.text)
+                          .then((value) => Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BottomNavScreen(),
+                              ),
+                              (route) => false));
+                    }
+                  },
+                  child: Text(
+                    "Add ToDo",
+                    style: TextStyle(color: color.onBackground),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

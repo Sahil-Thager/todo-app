@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CommonTextFormField extends StatefulWidget {
   final String hintText;
@@ -15,6 +16,8 @@ class CommonTextFormField extends StatefulWidget {
   final Icon? prefixIcon;
   final Widget? dropDown;
   final EdgeInsetsGeometry? contentPadding;
+  final List<TextInputFormatter>? inputFormatter;
+  final BoxConstraints? prefixIconConstraints;
   const CommonTextFormField(
       {super.key,
       this.contentPadding,
@@ -30,7 +33,9 @@ class CommonTextFormField extends StatefulWidget {
       this.isPassword = false,
       this.autovalidateMode,
       this.prefixIcon,
-      this.dropDown});
+      this.inputFormatter,
+      this.dropDown,
+      this.prefixIconConstraints});
 
   @override
   State<CommonTextFormField> createState() => _CommonTextFormFieldState();
@@ -43,6 +48,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
     return TextFormField(
       controller: widget.controller,
       autofillHints: const [AutofillHints.email],
+      inputFormatters: widget.inputFormatter,
       decoration: InputDecoration(
         contentPadding: widget.contentPadding,
         prefixIcon: widget.prefixIcon,
@@ -53,6 +59,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             color: Theme.of(context).hintColor,
           ),
         ),
+        prefixIconConstraints: widget.prefixIconConstraints,
         suffixIcon: widget.isPassword && widget.obscureText != null
             ? IconButton(
                 icon: Icon(

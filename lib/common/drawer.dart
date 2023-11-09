@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
+import 'package:flutter_todo_app/provider/todo_provider.dart';
+import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
 import 'package:flutter_todo_app/screens/home.dart';
 import 'package:provider/provider.dart';
 
@@ -11,11 +13,13 @@ class MyDrawer extends StatelessWidget {
     final color = Theme.of(context).colorScheme;
 
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final provider = Provider.of<ToDoProvider>(context, listen: false);
+
     return Drawer(
       child: ListView(
         children: [
           SizedBox(
-            height: 190,
+            height: 280,
             child: DrawerHeader(
               decoration: BoxDecoration(
                 color: color.background,
@@ -34,17 +38,37 @@ class MyDrawer extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 22),
                     child: CircleAvatar(
-                      backgroundColor: color.onBackground,
-                      child: Icon(
-                        Icons.account_circle_rounded,
-                        color: color.background,
+                        backgroundColor: color.onBackground,
+                        child: Text(
+                          provider.profile?["profile"]["Name"][0] ?? "",
+                          style:
+                              TextStyle(color: color.background, fontSize: 20),
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      provider.profile?["profile"]["Name"] ?? "",
+                      style: TextStyle(
+                        color: color.onBackground,
+                        fontSize: 20,
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      "User's Name",
+                      provider.profile?["profile"]["Email"] ?? "",
+                      style: TextStyle(
+                        color: color.onBackground,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      provider.profile?["profile"]["Mobile"] ?? "",
                       style: TextStyle(
                         color: color.onBackground,
                         fontSize: 20,
@@ -61,7 +85,7 @@ class MyDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return const Home();
+                    return const BottomNavScreen();
                   },
                 ),
                 (route) => false,
@@ -79,20 +103,6 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            onTap: (() {
-              logoutDialog(context);
-            }),
-            leading: Icon(
-              Icons.logout_rounded,
-              color: color.onBackground,
-            ),
-            title: Text(
-              "LogOut",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: color.onBackground),
-            ),
-          ),
-          ListTile(
             leading: Icon(
               Icons.dark_mode,
               color: color.onBackground,
@@ -107,6 +117,20 @@ class MyDrawer extends StatelessWidget {
               onChanged: ((value) {
                 themeProvider.toggleTheme();
               }),
+            ),
+          ),
+          ListTile(
+            onTap: (() {
+              logoutDialog(context);
+            }),
+            leading: Icon(
+              Icons.logout_rounded,
+              color: color.onBackground,
+            ),
+            title: Text(
+              "LogOut",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: color.onBackground),
             ),
           ),
         ],

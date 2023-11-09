@@ -12,13 +12,11 @@ class SignupProvider extends BaseChangeNotifier {
   final TextEditingController _emailController = TextEditingController();
   TextEditingController get emailController => _emailController;
 
-  Future<void> saveData() async {
+  Future<void> saveData(String email) async {
     try {
       loadingState();
-      await CustomSharedPrefrences.setString(
-        StorageKeys.email,
-        _emailController.text,
-      );
+      await CustomSharedPrefrences.setString(StorageKeys.email,
+          _emailController.text.isEmpty ? email : _emailController.text);
       await CustomSharedPrefrences.setString(
         StorageKeys.name,
         _nameController.text,
@@ -41,6 +39,13 @@ class SignupProvider extends BaseChangeNotifier {
 
   void setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void clearControllers() {
+    emailController.clear();
+    nameController.clear();
+    numberController.clear();
     notifyListeners();
   }
 }

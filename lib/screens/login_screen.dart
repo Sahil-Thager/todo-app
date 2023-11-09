@@ -65,7 +65,7 @@ class _LogInScreenState extends State<LogInScreen> {
                   Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: CommonTextFormField(
-                        controller: signUpProvider.emailController,
+                        controller: emailController,
                         validator: ((value) {
                           if (value!.isEmpty) {
                             return "please enter login id";
@@ -104,15 +104,16 @@ class _LogInScreenState extends State<LogInScreen> {
                           borderRadius: BorderRadius.circular(25)),
                       child: TextButton(
                           onPressed: () async {
-                            context.read<SignupProvider>().saveData();
+                            context
+                                .read<SignupProvider>()
+                                .saveData(emailController.text);
 
                             if (_formkey.currentState!.validate()) {
                               sProvider.setLoading(true);
 
                               FirebaseAuth.instance
                                   .signInWithEmailAndPassword(
-                                      email:
-                                          signUpProvider.emailController.text,
+                                      email: emailController.text,
                                       password: passwordController.text)
                                   .then((value) {
                                 Navigator.pushAndRemoveUntil(
@@ -202,6 +203,7 @@ class _LogInScreenState extends State<LogInScreen> {
                       child: TextButton.icon(
                           onPressed: () async {
                             User? user = await provider.signInWithGoogle();
+                            if (!context.mounted) return;
                             context.read<ToDoProvider>().saveUserMail();
                             provider.setUserProfileData(
                               id: user?.email,

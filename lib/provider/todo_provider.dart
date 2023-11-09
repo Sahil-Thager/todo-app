@@ -26,8 +26,6 @@ class ToDoProvider extends ChangeNotifier {
 
   final fireStore = FirebaseFirestore.instance.collection("User Record");
 
-  final TextEditingController _listConstroller = TextEditingController();
-  TextEditingController get listController => _listConstroller;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   TextEditingController get emailController => _emailController;
@@ -148,9 +146,9 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   bool notifi = false;
-  Future<void> firebaseData() async {
+  Future<void> firebaseData(String title) async {
     fireStore.doc(_email!.isEmpty ? mm ?? "" : _email).collection('todos').add({
-      "title": listController.text,
+      "title": title,
       "time": selectedDateTime,
       "isDone": isDone,
       "notificationTrigger10": false,
@@ -194,8 +192,8 @@ class ToDoProvider extends ChangeNotifier {
     await fireStore.doc(id).set({
       'profile': {
         "Name": nam,
-        "Mobile": mail,
-        "Email": no,
+        "Mobile": no,
+        "Email": mail,
         "Password": pass,
         "uid": id,
       },
