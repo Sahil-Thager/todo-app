@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/common/enum.dart';
 import 'package:flutter_todo_app/model/variables_model.dart';
-import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/shared_prefrence/shared_prefrence.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,14 +31,8 @@ class ToDoProvider extends ChangeNotifier {
   TextEditingController get emailController => _emailController;
   TextEditingController get passwordController => _passwordController;
 
-  String _name = '';
-  String get name => _name;
-
   String? _email = '';
   String? get email => _email;
-
-  String _number = '';
-  String get number => _number;
 
   void filter(String text) async {
     filteredList = docList.where(
@@ -127,9 +121,9 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   Future<void> getData() async {
-    _name = await CustomSharedPrefrences.getString(StorageKeys.name);
+    // _name = await CustomSharedPrefrences.getString(StorageKeys.name);
     _email = await CustomSharedPrefrences.getString(StorageKeys.email);
-    _number = await CustomSharedPrefrences.getString(StorageKeys.number);
+    // _number = await CustomSharedPrefrences.getString(StorageKeys.number);
     log('Get  data ran');
     notifyListeners();
   }
@@ -194,7 +188,6 @@ class ToDoProvider extends ChangeNotifier {
         "Name": nam,
         "Mobile": no,
         "Email": mail,
-        "Password": pass,
         "uid": id,
       },
     });
@@ -213,7 +206,6 @@ class ToDoProvider extends ChangeNotifier {
   var selectedDropdownValue = SelectTime.tenMinutes;
   void onDropdownValueChanged(final value) {
     selectedDropdownValue = value;
-    log("drop value -- ${selectedDropdownValue}");
     notifyListeners();
   }
 

@@ -7,7 +7,6 @@ import 'package:flutter_todo_app/common/my_tile.dart';
 import 'package:flutter_todo_app/constants/home_appbar.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
-import 'package:flutter_todo_app/provider/signup_provider.dart';
 import 'package:flutter_todo_app/provider/theme_provider.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/screens/login_screen.dart';
@@ -102,6 +101,7 @@ class _HomeState extends State<Home> {
                                 provider.filteredList.elementAt(index);
 
                             return MyTile(
+                              provider: provider,
                               myDecoration:
                                   provider.docList[index].data()["isDone"]
                                       ? TextDecoration.lineThrough
@@ -141,7 +141,6 @@ class _HomeState extends State<Home> {
 Future<void> logoutDialog(BuildContext context) async {
   final color = Theme.of(context).colorScheme;
   final theme = Provider.of<ThemeProvider>(context, listen: false);
-  final sProvider = Provider.of<SignupProvider>(context, listen: false);
   return showDialog(
     context: context,
     builder: (context) {
@@ -167,7 +166,7 @@ Future<void> logoutDialog(BuildContext context) async {
             TextButton(
               onPressed: () async {
                 theme.logout();
-                sProvider.clearControllers();
+
                 CustomSharedPrefrences.remove();
                 final GoogleSignIn googleSignIn = GoogleSignIn();
                 await FirebaseAuth.instance.signOut();
@@ -217,10 +216,10 @@ Future<void> todoDelete(BuildContext context, index) async {
             ),
             TextButton(
               onPressed: () async {
+                notificationServices.cancelNotification(index);
+
                 provider
                     .deleteToDoItem(index, provider.docList[index].id)
-                    .then((value) =>
-                        notificationServices.cancelNotification(index))
                     .then((value) => Navigator.pop(context));
               },
               child: const Text("Delete"),

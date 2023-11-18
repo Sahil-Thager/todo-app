@@ -21,21 +21,19 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController numberController = TextEditingController();
+
   final List<TextInputFormatter> _inputFormatters = [
     LengthLimitingTextInputFormatter(10),
   ];
 
   final fireStore = FirebaseFirestore.instance.collection("User Record");
 
-  FocusNode emailFocusNode = FocusNode();
-  FocusNode passwordFocusNode = FocusNode();
-  FocusNode numberFocusNode = FocusNode();
-  FocusNode nameFocusNode = FocusNode();
-
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
-    final signUpProvider = context.watch<SignupProvider>();
 
     return Scaffold(
       backgroundColor: color.background,
@@ -55,7 +53,7 @@ class _SignupScreenState extends State<SignupScreen> {
             child: SizedBox(
                 height: 50,
                 child: CommonTextFormField(
-                  controller: signUpProvider.nameController,
+                  controller: nameController,
                   hintText: "Enter Name",
                   textInputAction: TextInputAction.next,
                   contentPadding: const EdgeInsets.only(
@@ -66,7 +64,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Padding(
               padding: const EdgeInsets.all(12),
               child: CommonTextFormField(
-                controller: signUpProvider.numberController,
+                controller: numberController,
                 hintText: "Enter Number",
                 inputFormatter: _inputFormatters,
                 textInputAction: TextInputAction.next,
@@ -75,7 +73,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Padding(
               padding: const EdgeInsets.all(12),
               child: CommonTextFormField(
-                controller: signUpProvider.emailController,
+                controller: emailController,
                 hintText: "Enter Email",
                 textInputAction: TextInputAction.next,
                 contentPadding: const EdgeInsets.only(
@@ -114,14 +112,13 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void signupAuth() {
-    final signUpProvider = Provider.of<SignupProvider>(context, listen: false);
     final todoProvider = Provider.of<ToDoProvider>(context, listen: false);
 
-    if (signUpProvider.nameController.text.isEmpty) {
+    if (nameController.text.isEmpty) {
       Utils.showSnackbar("Please Enter Name", context);
-    } else if (signUpProvider.numberController.text.isEmpty) {
+    } else if (numberController.text.isEmpty) {
       Utils.showSnackbar("Please Enter Number", context);
-    } else if (signUpProvider.emailController.text.isEmpty) {
+    } else if (emailController.text.isEmpty) {
       Utils.showSnackbar("Please Enter Email", context);
     } else if (passwordController.text.isEmpty) {
       Utils.showSnackbar("Please Enter Password", context);
@@ -129,21 +126,19 @@ class _SignupScreenState extends State<SignupScreen> {
       Utils.showSnackbar(
           "Please Enter atleast 6 characters in your password", context);
     } else {
-      context
-          .read<SignupProvider>()
-          .saveData(signUpProvider.emailController.text);
+      context.read<SignupProvider>().saveData(emailController.text);
       FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-            email: signUpProvider.emailController.text,
+            email: emailController.text,
             password: passwordController.text,
           )
           .then((value) => Utils.showSnackbar("Signup Successfully", context))
           .then((value) async {
         todoProvider.setUserProfileData(
-            id: signUpProvider.emailController.text,
-            nam: signUpProvider.nameController.text,
-            mail: signUpProvider.emailController.text,
-            no: signUpProvider.numberController.text,
+            id: emailController.text,
+            nam: nameController.text,
+            mail: emailController.text,
+            no: numberController.text,
             pass: passwordController.text);
       }).then((value) async {
         await context.read<ToDoProvider>().getUserProfileData();
@@ -151,14 +146,12 @@ class _SignupScreenState extends State<SignupScreen> {
         log("$stackTrace");
       }).then(
         (value) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return const BottomNavScreen();
-              },
-            ),
-          );
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BottomNavScreen(),
+              ),
+              (route) => false);
         },
       );
     }

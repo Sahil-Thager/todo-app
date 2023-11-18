@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/common/enum.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
 import 'package:flutter_todo_app/screens/bottom_nav_screen.dart';
 import 'package:provider/provider.dart';
-
-enum SelectTime {
-  tenMinutes('10Minutes'),
-  oneHour('1Hour'),
-  oneDay('1Day');
-
-  final String value;
-
-  const SelectTime(this.value);
-}
 
 class AddTodoScreen extends StatefulWidget {
   const AddTodoScreen({super.key});
@@ -76,7 +67,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),
               DropdownButtonHideUnderline(
                 child: DropdownButton<SelectTime>(
-                  value: context.watch<ToDoProvider>().selectedDropdownValue,
+                  value: addTodoProvider.selectedDropdownValue,
                   items: SelectTime.values.map((e) {
                     return DropdownMenuItem<SelectTime>(
                       value: e,

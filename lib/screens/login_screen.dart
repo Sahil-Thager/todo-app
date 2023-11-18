@@ -66,6 +66,7 @@ class _LogInScreenState extends State<LogInScreen> {
                     padding: const EdgeInsets.all(15.0),
                     child: CommonTextFormField(
                         controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
                         validator: ((value) {
                           if (value!.isEmpty) {
                             return "please enter login id";
@@ -90,6 +91,7 @@ class _LogInScreenState extends State<LogInScreen> {
                       isPassword: true,
                       obscureText: true,
                       prefixIcon: const Icon(Icons.lock),
+                      keyboardType: TextInputType.visiblePassword,
                     ),
                   ),
                   Padding(

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/common/enum.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
-import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:provider/provider.dart';
 
 class MyTile extends StatefulWidget {
@@ -15,6 +15,7 @@ class MyTile extends StatefulWidget {
     this.onTileTap,
     required this.icon,
     required this.myDecoration,
+    required this.provider,
   });
 
   final ToDo todo;
@@ -22,6 +23,7 @@ class MyTile extends StatefulWidget {
   final void Function()? onTileTap;
   final IconData icon;
   final TextDecoration? myDecoration;
+  final ToDoProvider provider;
 
   @override
   State<MyTile> createState() => _MyTileState();
@@ -33,6 +35,7 @@ class _MyTileState extends State<MyTile> {
   @override
   void initState() {
     notificationServices.intialiseNotification();
+    notificationServices.getDeviceToken();
     context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
 
     super.initState();
@@ -49,15 +52,27 @@ class _MyTileState extends State<MyTile> {
       notificationServices.sendNotification(
           widget.todo.todoText.toString(), widget.todo.date.toString());
     });
+    notificationOn1minutes(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
+    notificationOn2minutes(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
+    notificationOn3minutes(() {
+      notificationServices.sendNotification(
+          widget.todo.todoText.toString(), widget.todo.date.toString());
+    });
   }
 
   void notificationOn10minutes(VoidCallback callback) {
-    final provider = Provider.of<ToDoProvider>(context, listen: false);
     final todo = widget.todo;
+    final selectedValue = widget.provider.selectedDropdownValue;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (provider.selectedDropdownValue == SelectTime.tenMinutes &&
+      if (selectedValue == SelectTime.tenMinutes &&
           timeDifference.inSeconds <= 600 &&
           todo.triggerNotification10 == false) {
         callback.call();
@@ -66,14 +81,59 @@ class _MyTileState extends State<MyTile> {
     });
   }
 
+  void notificationOn1minutes(VoidCallback callback) {
+    final todo = widget.todo;
+    final selectedValue = widget.provider.selectedDropdownValue;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (selectedValue == SelectTime.oneMinutes &&
+          timeDifference.inSeconds <= 60 &&
+          todo.triggerNotification10 == false) {
+        callback.call();
+        timer.cancel();
+      }
+    });
+  }
+
+  void notificationOn2minutes(VoidCallback callback) {
+    final todo = widget.todo;
+    final selectedValue = widget.provider.selectedDropdownValue;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (selectedValue == SelectTime.twoMinutes &&
+          timeDifference.inSeconds <= 120 &&
+          todo.triggerNotification10 == false) {
+        callback.call();
+        timer.cancel();
+      }
+    });
+  }
+
+  void notificationOn3minutes(VoidCallback callback) {
+    final todo = widget.todo;
+    final selectedValue = widget.provider.selectedDropdownValue;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      final timeDifference = widget.todo.date.difference(DateTime.now());
+
+      if (selectedValue == SelectTime.threeMinutes &&
+          timeDifference.inSeconds <= 180 &&
+          todo.triggerNotification10 == false) {
+        callback.call();
+        timer.cancel();
+      }
+    });
+  }
+
   void notificationOn1Hour(VoidCallback callback) {
-    final provider = Provider.of<ToDoProvider>(context, listen: false);
+    final selectedValue = widget.provider.selectedDropdownValue;
 
     final todo = widget.todo;
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (provider.selectedDropdownValue == SelectTime.oneHour &&
+      if (selectedValue == SelectTime.oneHour &&
           timeDifference.inSeconds <= 3600 &&
           todo.triggerNotification10 == false) {
         callback.call();
@@ -84,12 +144,12 @@ class _MyTileState extends State<MyTile> {
 
   void notificationOn1Day(VoidCallback callback) {
     final todo = widget.todo;
-    final provider = Provider.of<ToDoProvider>(context, listen: false);
+    final selectedValue = widget.provider.selectedDropdownValue;
 
     Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (provider.selectedDropdownValue == SelectTime.oneDay &&
+      if (selectedValue == SelectTime.oneDay &&
           timeDifference.inSeconds <= 86400 &&
           todo.triggerNotification10 == false) {
         callback.call();

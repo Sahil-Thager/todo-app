@@ -14,7 +14,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // FirebaseApp toDoApp = Firebase.app('ToDoApp');
   runApp(
     MultiProvider(
       providers: [

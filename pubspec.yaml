@@ -28,6 +28,7 @@ dependencies:
   firestore_helper: ^0.3.0+5
   google_sign_in: ^6.1.5
   font_awesome_flutter: ^10.6.0
+  firebase_messaging: ^14.6.9
 
 
 dev_dependencies:
