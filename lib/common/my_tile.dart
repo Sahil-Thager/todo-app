@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/common/enum.dart';
 import 'package:flutter_todo_app/model/todo.dart';
 import 'package:flutter_todo_app/notifications/notification_services.dart';
 import 'package:flutter_todo_app/provider/todo_provider.dart';
@@ -40,122 +40,33 @@ class _MyTileState extends State<MyTile> {
 
     super.initState();
 
-    notificationOn10minutes(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
-    notificationOn1Hour(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
-    notificationOn1Day(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
-    notificationOn1minutes(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
-    notificationOn2minutes(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
-    notificationOn3minutes(() {
-      notificationServices.sendNotification(
-          widget.todo.todoText.toString(), widget.todo.date.toString());
-    });
+    sendNotification();
   }
 
-  void notificationOn10minutes(VoidCallback callback) {
+  Timer? _timer;
+
+  void sendNotification() {
     final todo = widget.todo;
-    final selectedValue = widget.provider.selectedDropdownValue;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
-      if (selectedValue == SelectTime.tenMinutes &&
-          timeDifference.inSeconds <= 600 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
+      if (timeDifference.inSeconds <= todo.notificationTriggerDuration &&
+          todo.isNotificationTriggered == false) {
+        notificationServices.sendNotification(
+          widget.todo.todoText.toString(),
+          widget.todo.date.toString(),
+        );
         timer.cancel();
+        log(widget.todo.id);
       }
     });
   }
 
-  void notificationOn1minutes(VoidCallback callback) {
-    final todo = widget.todo;
-    final selectedValue = widget.provider.selectedDropdownValue;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (selectedValue == SelectTime.oneMinutes &&
-          timeDifference.inSeconds <= 60 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
-        timer.cancel();
-      }
-    });
-  }
-
-  void notificationOn2minutes(VoidCallback callback) {
-    final todo = widget.todo;
-    final selectedValue = widget.provider.selectedDropdownValue;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (selectedValue == SelectTime.twoMinutes &&
-          timeDifference.inSeconds <= 120 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
-        timer.cancel();
-      }
-    });
-  }
-
-  void notificationOn3minutes(VoidCallback callback) {
-    final todo = widget.todo;
-    final selectedValue = widget.provider.selectedDropdownValue;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (selectedValue == SelectTime.threeMinutes &&
-          timeDifference.inSeconds <= 180 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
-        timer.cancel();
-      }
-    });
-  }
-
-  void notificationOn1Hour(VoidCallback callback) {
-    final selectedValue = widget.provider.selectedDropdownValue;
-
-    final todo = widget.todo;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (selectedValue == SelectTime.oneHour &&
-          timeDifference.inSeconds <= 3600 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
-        timer.cancel();
-      }
-    });
-  }
-
-  void notificationOn1Day(VoidCallback callback) {
-    final todo = widget.todo;
-    final selectedValue = widget.provider.selectedDropdownValue;
-
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      final timeDifference = widget.todo.date.difference(DateTime.now());
-
-      if (selectedValue == SelectTime.oneDay &&
-          timeDifference.inSeconds <= 86400 &&
-          todo.triggerNotification10 == false) {
-        callback.call();
-        timer.cancel();
-      }
-    });
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override

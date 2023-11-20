@@ -3,7 +3,7 @@ class ToDo {
   final String? todoText;
   bool isDone;
   final DateTime date;
-  bool triggerNotification10;
+  int notificationTriggerDuration;
   bool triggerMyNotification;
   bool isNotificationTriggered;
 
@@ -12,7 +12,7 @@ class ToDo {
     this.todoText,
     this.isDone = false,
     required this.date,
-    this.triggerNotification10 = true,
+    required this.notificationTriggerDuration,
     this.triggerMyNotification = true,
     this.isNotificationTriggered = false,
   });

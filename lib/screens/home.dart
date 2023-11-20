@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/common/common_textfield.dart';
@@ -122,9 +123,11 @@ class _HomeState extends State<Home> {
                                   id: element.id.toString(),
                                   todoText: element.data()["title"],
                                   isDone: false,
-                                  triggerNotification10:
-                                      element.data()["notificationTrigger10"],
-                                  date: DateTime.parse(element.data()["time"])),
+                                  isNotificationTriggered:
+                                      element.data()["isNotificationTriggered"],
+                                  date: DateTime.parse(element.data()["time"]),
+                                  notificationTriggerDuration: element
+                                      .data()["notificationTriggerDuration"]),
                             );
                           },
                         );
@@ -216,11 +219,11 @@ Future<void> todoDelete(BuildContext context, index) async {
             ),
             TextButton(
               onPressed: () async {
-                notificationServices.cancelNotification(index);
-
-                provider
-                    .deleteToDoItem(index, provider.docList[index].id)
-                    .then((value) => Navigator.pop(context));
+                notificationServices.cancelNotification(index).then((value) =>
+                    provider
+                        .deleteToDoItem(index, provider.docList[index].id)
+                        .then((value) => Navigator.pop(context)));
+                log(provider.docList[index].id);
               },
               child: const Text("Delete"),
             ),

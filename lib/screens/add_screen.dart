@@ -12,7 +12,6 @@ class AddTodoScreen extends StatefulWidget {
 }
 
 class _AddTodoScreenState extends State<AddTodoScreen> {
-  DateTime selectedDateTime = DateTime.now();
   TextEditingController listController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -84,14 +83,15 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      addTodoProvider
-                          .firebaseData(listController.text)
-                          .then((value) => Navigator.pushAndRemoveUntil(
+                      addTodoProvider.firebaseData(listController.text).then(
+                            (value) => Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const BottomNavScreen(),
                               ),
-                              (route) => false));
+                              (route) => false,
+                            ),
+                          );
                     }
                   },
                   child: Text(
