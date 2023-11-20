@@ -102,6 +102,7 @@ class _HomeState extends State<Home> {
                                 provider.filteredList.elementAt(index);
 
                             return MyTile(
+                              index: provider.docList[index].data()["isDone"],
                               provider: provider,
                               myDecoration:
                                   provider.docList[index].data()["isDone"]
@@ -120,14 +121,15 @@ class _HomeState extends State<Home> {
                                     provider.docList[index]);
                               },
                               todo: ToDo(
-                                  id: element.id.toString(),
-                                  todoText: element.data()["title"],
-                                  isDone: false,
-                                  isNotificationTriggered:
-                                      element.data()["isNotificationTriggered"],
-                                  date: DateTime.parse(element.data()["time"]),
-                                  notificationTriggerDuration: element
-                                      .data()["notificationTriggerDuration"]),
+                                id: element.id.toString(),
+                                todoText: element.data()["title"],
+                                isDone: element.data()["isDone"],
+                                isNotificationTriggered:
+                                    element.data()["isNotificationTriggered"],
+                                date: DateTime.parse(element.data()["time"]),
+                                notificationTriggerDuration: element
+                                    .data()["notificationTriggerDuration"],
+                              ),
                             );
                           },
                         );

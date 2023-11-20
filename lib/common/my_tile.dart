@@ -16,6 +16,7 @@ class MyTile extends StatefulWidget {
     required this.icon,
     required this.myDecoration,
     required this.provider,
+    required this.index,
   });
 
   final ToDo todo;
@@ -24,6 +25,7 @@ class MyTile extends StatefulWidget {
   final IconData icon;
   final TextDecoration? myDecoration;
   final ToDoProvider provider;
+  final bool index;
 
   @override
   State<MyTile> createState() => _MyTileState();
@@ -34,8 +36,6 @@ class _MyTileState extends State<MyTile> {
 
   @override
   void initState() {
-    notificationServices.intialiseNotification();
-    notificationServices.getDeviceToken();
     context.read<ToDoProvider>().toggleOffNotification(widget.todo.id);
 
     super.initState();
@@ -44,15 +44,16 @@ class _MyTileState extends State<MyTile> {
   }
 
   Timer? _timer;
+  bool? isDone;
 
   void sendNotification() {
     final todo = widget.todo;
-
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final timeDifference = widget.todo.date.difference(DateTime.now());
 
       if (timeDifference.inSeconds <= todo.notificationTriggerDuration &&
-          todo.isNotificationTriggered == false) {
+          !todo.isNotificationTriggered &&
+          !widget.index) {
         notificationServices.sendNotification(
           widget.todo.todoText.toString(),
           widget.todo.date.toString(),

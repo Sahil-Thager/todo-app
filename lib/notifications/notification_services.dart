@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -36,11 +35,5 @@ class NotificationServices {
 
   Future<void> cancelNotification(int id) async {
     await flutterLocalNotificationsPlugin.cancel(id);
-  }
-
-  Future<String> getDeviceToken() async {
-    String? token = await firebaseMessaging.getToken();
-    log(token.toString());
-    return token ?? "";
   }
 }

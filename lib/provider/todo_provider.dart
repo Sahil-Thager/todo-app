@@ -53,7 +53,7 @@ class ToDoProvider extends ChangeNotifier {
         .doc(_email!.isEmpty ? _userMail ?? "" : _email)
         .collection('todos')
         .doc(data.id)
-        .update({"isDone": !data.data()["isDone"]});
+        .update({"isDone": true});
     await todosData();
     notifyListeners();
   }
@@ -122,9 +122,7 @@ class ToDoProvider extends ChangeNotifier {
   }
 
   Future<void> getData() async {
-    // _name = await CustomSharedPrefrences.getString(StorageKeys.name);
     _email = await CustomSharedPrefrences.getString(StorageKeys.email);
-    // _number = await CustomSharedPrefrences.getString(StorageKeys.number);
     log('Get  data ran');
     notifyListeners();
   }
@@ -143,8 +141,6 @@ class ToDoProvider extends ChangeNotifier {
   int? time;
   bool notifi = false;
   Future<void> firebaseData(String title) async {
-    // _selectedDateTime.difference(DateTime.now()).inSeconds;
-
     fireStore
         .doc(_email!.isEmpty ? _userMail ?? "" : _email)
         .collection('todos')
