@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/screens/add_screen.dart';
 import 'package:flutter_todo_app/screens/home.dart';
+import 'package:flutter_todo_app/screens/photos_screen.dart';
+import 'package:flutter_todo_app/screens/product_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
   const BottomNavScreen({super.key});
@@ -15,6 +17,8 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   final List<Widget> _screens = [
     const Home(),
     const AddTodoScreen(),
+    const PhotosScreen(),
+    const ProductScreen()
   ];
 
   @override
@@ -38,6 +42,14 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.add),
               label: 'Add Todo',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.photo),
+              label: 'Photos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Product',
             ),
           ],
         ),
